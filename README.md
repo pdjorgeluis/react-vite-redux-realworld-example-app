@@ -6,9 +6,9 @@
 ### [Demo](https://demo.realworld.io/)&nbsp;&nbsp;&nbsp;&nbsp;[RealWorld](https://github.com/gothinkster/realworld)
 
 
-This codebase was created to demonstrate a fully fledged fullstack application built with React + Redux including CRUD operations, authentication, routing, pagination, and more.
+This codebase was created to demonstrate a fully fledged fullstack application built with React Vite + Redux including CRUD operations, authentication, routing, pagination, and more.
 
-We've gone to great lengths to adhere to the React + Redux community styleguides & best practices.
+I have gone to great lengths to adhere to the React + Redux community styleguides & best practices.
 
 For more information on how to this works with other frontends/backends, head over to the [RealWorld](https://github.com/gothinkster/realworld) repo.
 
