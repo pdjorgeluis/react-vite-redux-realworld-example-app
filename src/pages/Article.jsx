@@ -20,11 +20,11 @@ function Article({ articleSlug, user }) {
     <div className="article-page">
       <div className="banner">
         <div className="container">
-          <h1>How to build webapps that scale</h1>
+          <h1>{article.title}</h1>
 
           <div className="article-meta">
             <Link to="/profile/eric-simons">
-              <img src="http://i.imgur.com/Qr71crq.jpg" />
+              <img src={article.author.image} />
             </Link>
             <div className="info">
               <Link to="/profile/eric-simons" className="author">
@@ -61,17 +61,13 @@ function Article({ articleSlug, user }) {
       <div className="container page">
         <div className="row article-content">
           <div className="col-md-12">
-            <p>
-              Web development technologies have evolved at an incredible clip
-              over the past few years.
-            </p>
-            <h2 id="introducing-ionic">Introducing RealWorld.</h2>
-            <p>It's a great solution for learning how other frameworks work.</p>
+            <p>{article.body}</p>
             <ul className="tag-list">
-              <li className="tag-default tag-pill tag-outline">realworld</li>
-              <li className="tag-default tag-pill tag-outline">
-                implementations
-              </li>
+              {article.tagList.map((tag) => (
+                <li className="tag-default tag-pill tag-outline" key={tag}>
+                  {tag}
+                </li>
+              ))}
             </ul>
           </div>
         </div>
