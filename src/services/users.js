@@ -8,7 +8,7 @@ const setToken = (newToken) => {
   token = `Bearer ${newToken}`;
 };
 
-const getUser = async () => {
+const getCurrentUser = async () => {
   const response = await axios.get(`${baseUrl}/user`);
   return response.data;
 };
@@ -19,15 +19,15 @@ const login = async (credentials) => {
 };
 
 const register = async (credentials) => {
-  const response = await axios.post(`${baseUrl}/users/`, credentials);
+  const response = await axios.post(`${baseUrl}/users`, credentials);
   return response.data;
 };
 
-const updateUser = async (user) => {
+const updateCurrentUser = async (user) => {
   const config = {
     headers: { Authorization: token },
   };
-  const response = await axios.put(`${baseUrl}/users/${user.id}`, user, config);
+  const response = await axios.put(`${baseUrl}/user`, user, config);
   return response.data;
 };
-export default { getUser, login, register, updateUser, setToken };
+export default { getCurrentUser, login, register, updateCurrentUser, setToken };

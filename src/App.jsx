@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Route, Routes, useMatch } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { initializeUser } from "./reducers/userReducer";
 
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -15,19 +16,21 @@ import "./App.css";
 import {
   initializeArticles,
   getArticleBySlug,
-} from "./Reducers/articleReducer";
+} from "./reducers/articleReducer";
 import Article from "./pages/Article";
+import Settings from "./pages/Settings";
 
 function App() {
   const [message, setMessage] = useState("LOL");
-  const loggedUser = {
-    username: "Jorge",
-    image: "vite.svg",
-  };
-  const noUser = null;
-  const articlesList = useSelector((state) => state.articles);
+
+  // const articlesList = useSelector((state) => state.articles);
+  const user = useSelector((state) => state.loggedUser.user);
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(initializeUser());
+  }, []);
 
   useEffect(() => {
     dispatch(initializeArticles());
@@ -52,15 +55,16 @@ function App() {
 
   return (
     <div>
-      <Header currentUser={noUser} />
+      <Header currentUser={user} />
       <Routes>
-        <Route path="/" element={<Home user={noUser} />} />
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route
           path="/article/:slug"
-          element={<Article articleSlug={articleSlug} user={noUser} />}
+          element={<Article articleSlug={articleSlug} user={user} />}
         />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
       <Footer />
     </div>

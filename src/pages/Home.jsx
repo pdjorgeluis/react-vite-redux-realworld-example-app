@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+
 import tagsService from "../services/tags";
 import Banner from "../components/Banner";
 import ArticlesList from "../components/ArticlesList";
-import { getArticlesByTag } from "../Reducers/articleReducer";
+import { getArticlesByTag } from "../reducers/articleReducer";
 
-function Home({ user }) {
+function Home() {
+  const user = useSelector((state) => state.loggedUser.user);
   const [tags, setTags] = useState([]);
   const [tag, setTag] = useState("");
 
@@ -26,6 +28,10 @@ function Home({ user }) {
   const handleGlobalFeedClick = () => {
     setTag("");
   };
+
+  /* if (tags === null) {
+    return null;
+  } */
 
   return (
     <div className="home-page">

@@ -6,11 +6,13 @@ import { configureStore } from "@reduxjs/toolkit";
 
 import { BrowserRouter as Router } from "react-router-dom";
 import App from "./App";
-import articleReducer from "./Reducers/articleReducer";
+import articleReducer from "./reducers/articleReducer";
+import userReducer from "./reducers/userReducer";
 // import './index.css';
 
 const store = configureStore({
   reducer: {
+    loggedUser: userReducer,
     articles: articleReducer,
   },
 });
