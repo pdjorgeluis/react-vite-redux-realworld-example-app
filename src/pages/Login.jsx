@@ -8,7 +8,7 @@ import articlesService from "../services/articles";
 
 function Login() {
   // const user = useSelector((state) => state.loggedUser.user);
-  const [errorMessages, setErrorMessages] = useState([]);
+  const [error, setError] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
@@ -16,28 +16,28 @@ function Login() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setErrorMessages(null);
-    if (email === "") {
+    setError(null);
+    /* if (email === "") {
       setErrorMessages([`email can't be blank`]);
       return;
     }
     if (password === "") {
       setErrorMessages([`password can't be blank`]);
       return;
-    }
+    } */
 
     try {
       const userToLogin = await userService.login({
         user: { email, password },
       });
       window.localStorage.setItem("loggedAppUser", JSON.stringify(userToLogin));
-      articlesService.setToken(userToLogin.token);
-      userService.setToken(userToLogin.token);
+      articlesService.setToken(userToLogin.user.token);
+      userService.setToken(userToLogin.user.token);
       dispatch(setUser(userToLogin));
       setPassword("");
       navigate("/");
-    } catch (error) {
-      setErrorMessages(["email or password is invalid"]);
+    } catch (exception) {
+      setError(exception);
       setPassword("");
     }
   };
@@ -52,7 +52,7 @@ function Login() {
               <a href="/register">Need an account?</a>
             </p>
 
-            <Notification messages={errorMessages} />
+            <Notification error={error} />
 
             <form onSubmit={handleSubmit}>
               <fieldset className="form-group">

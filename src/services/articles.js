@@ -7,19 +7,48 @@ let token = null;
 const setToken = (newToken) => {
   token = `Bearer ${newToken}`;
 };
-const getAll = () => {
-  const request = axios.get(baseUrl);
+
+const getAll = (offset) => {
+  const request = axios.get(baseUrl, { params: { offset } });
   return request.then((response) => response.data);
 };
 
-const getTag = (tag) => {
-  const request = axios.get(baseUrl, { params: { tag } });
+const getByTag = (tag, offset) => {
+  const request = axios.get(baseUrl, { params: { tag, offset } });
   return request.then((response) => response.data);
 };
 
 const getBySlug = (slug) => {
   const request = axios.get(`${baseUrl}/${slug}`);
   return request.then((response) => response.data);
+};
+
+const getAllFeed = (offset) => {
+  const config = {
+    headers: { Authorization: token },
+    params: { offset },
+  };
+
+  const request = axios.get(`${baseUrl}/feed`, config);
+  return request.then((response) => response.data);
+};
+
+const favoriteArticle = async (slug) => {
+  const config = {
+    headers: { Authorization: token },
+  };
+  console.log("token in fav", token);
+  const response = await axios.post(`${baseUrl}/${slug}/favorite`, {}, config);
+  return response.data;
+};
+
+const unfavoriteArticle = async (slug) => {
+  const config = {
+    headers: { Authorization: token },
+  };
+
+  const response = await axios.delete(`${baseUrl}/${slug}/favorite`, config);
+  return response.data;
 };
 
 const create = async (newObject) => {
@@ -67,6 +96,9 @@ export default {
   update,
   deleteBlog,
   addComment,
-  getTag,
+  getByTag,
   getBySlug,
+  getAllFeed,
+  favoriteArticle,
+  unfavoriteArticle,
 };

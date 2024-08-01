@@ -1,12 +1,22 @@
 import React from "react";
-
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import {
+  favoriteAnArticle,
+  unfavoriteAnArticle,
+} from "../reducers/articleReducer";
 
 function ArticlePreview({ article }) {
-  const handleClick = (event) => {
-    // Favorite Like function
-    console.log("Clicked Favourite");
+  const dispatch = useDispatch();
+
+  const handleFavouriteClick = () => {
+    if (article.favorited === false) {
+      dispatch(favoriteAnArticle(article.slug));
+    } else {
+      dispatch(unfavoriteAnArticle(article.slug));
+    }
   };
+
   return (
     <div className="article-preview">
       <div className="article-meta">
@@ -24,7 +34,7 @@ function ArticlePreview({ article }) {
         <button
           className="btn btn-outline-primary btn-sm pull-xs-right"
           type="button"
-          onClick={handleClick}
+          onClick={handleFavouriteClick}
         >
           <i className="ion-heart" /> {article.favorited}
           {article.favoritesCount}

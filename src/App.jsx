@@ -19,6 +19,7 @@ import {
 } from "./reducers/articleReducer";
 import Article from "./pages/Article";
 import Settings from "./pages/Settings";
+import Profile from "./pages/Profile";
 
 function App() {
   const [message, setMessage] = useState("LOL");
@@ -37,7 +38,10 @@ function App() {
   }, []);
 
   const articleMatch = useMatch("/article/:slug");
+  // const userMatch = useMatch(`/@${user.username}`)
+
   const articleSlug = articleMatch ? articleMatch.params.slug : null;
+
   /* let selectedArticle = null;
   useEffect(() => {
     selectedArticle = articleMatch
@@ -55,7 +59,7 @@ function App() {
 
   return (
     <div>
-      <Header currentUser={user} />
+      <Header user={user} />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -65,6 +69,12 @@ function App() {
           element={<Article articleSlug={articleSlug} user={user} />}
         />
         <Route path="/settings" element={<Settings />} />
+        {user && (
+          <Route
+            path={`/@${user.username}`}
+            element={<Profile user={user} />}
+          />
+        )}
       </Routes>
       <Footer />
     </div>

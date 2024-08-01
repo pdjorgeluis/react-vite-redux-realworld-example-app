@@ -5,12 +5,19 @@ import { Link } from "react-router-dom";
 import tagsService from "../services/tags";
 import Banner from "../components/Banner";
 import ArticlesList from "../components/ArticlesList";
-import { getArticlesByTag } from "../reducers/articleReducer";
+import {
+  setArticlesByTag,
+  setArticlesByFeed,
+} from "../reducers/articleReducer";
 
 function Home() {
   const user = useSelector((state) => state.loggedUser.user);
+  const articlesCount = useSelector((state) => state.articles.articlesCount);
+  const limit = 10; // make it variable?
+  const pages = Math.ceil(articlesCount / limit);
+  const [page, setPage] = useState(0);
   const [tags, setTags] = useState([]);
-  const [tag, setTag] = useState("");
+  const [filter, setFilter] = useState({ tag: "", feed: "GLOBAL" });
 
   useEffect(() => {
     tagsService.getAll().then((fetchedTags) => setTags(fetchedTags.tags));
@@ -18,20 +25,35 @@ function Home() {
 
   const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(getArticlesByTag(tag));
-  }, [tag]);
+    switch (filter.feed) {
+      case "GLOBAL": {
+        dispatch(setArticlesByTag(page, filter.tag));
+        break;
+      }
+      case "TAG": {
+        dispatch(setArticlesByTag(page, filter.tag));
+        break;
+      }
+      case "YOUR": {
+        dispatch(setArticlesByFeed(page));
+        break;
+      }
+      default:
+        break;
+    }
+  }, [filter, page]);
 
-  const handleTagClick = (tag) => {
-    setTag(tag);
+  const handleTagClick = (t) => {
+    setFilter({ tag: t, feed: "TAG" });
   };
 
   const handleGlobalFeedClick = () => {
-    setTag("");
+    setFilter({ tag: "", feed: "GLOBAL" });
   };
 
-  /* if (tags === null) {
-    return null;
-  } */
+  const handleYourFeedClick = () => {
+    setFilter({ tag: "", feed: "YOUR" });
+  };
 
   return (
     <div className="home-page">
@@ -43,51 +65,56 @@ function Home() {
               <ul className="nav nav-pills outline-active">
                 {user && (
                   <li className="nav-item">
-                    <Link className="nav-link" to="/">
+                    <button
+                      className={`nav-link ${filter.feed === "YOUR" ? "active" : ""}`}
+                      type="button"
+                      onClick={handleYourFeedClick}
+                    >
                       Your Feed
-                    </Link>
+                    </button>
                   </li>
                 )}
 
-                {tag === "" ? (
+                <div>
                   <li className="nav-item">
-                    <button className="nav-link active" type="button">
+                    <button
+                      className={`nav-link ${filter.feed === "GLOBAL" ? "active" : ""}`}
+                      type="button"
+                      onClick={handleGlobalFeedClick}
+                    >
                       Global Feed
                     </button>
                   </li>
-                ) : (
-                  <div>
+                  {filter.tag !== "" && (
                     <li className="nav-item">
                       <button
-                        className="nav-link"
+                        className={`nav-link ${filter.feed === "TAG" ? "active" : ""}`}
                         type="button"
-                        onClick={handleGlobalFeedClick}
                       >
-                        Global Feed
+                        #{filter.tag}
                       </button>
                     </li>
-                    <li className="nav-item">
-                      <button className="nav-link active" type="button">
-                        #{tag}
-                      </button>
-                    </li>
-                  </div>
-                )}
+                  )}
+                </div>
               </ul>
             </div>
             <ArticlesList />
 
             <ul className="pagination">
-              <li className="page-item active">
-                <Link className="page-link" to="">
-                  1
-                </Link>
-              </li>
-              <li className="page-item">
-                <Link className="page-link" to="">
-                  2
-                </Link>
-              </li>
+              {Array.from({ length: pages }, (v, i) => (
+                <li
+                  className={page === i ? "page-item active" : "page-item"}
+                  key={i}
+                >
+                  <button
+                    className="page-link"
+                    type="button"
+                    onClick={() => setPage(i)}
+                  >
+                    {i + 1}
+                  </button>
+                </li>
+              ))}
             </ul>
           </div>
 

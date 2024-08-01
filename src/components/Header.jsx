@@ -1,8 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-function Header({ currentUser }) {
-  return !currentUser ? (
+function Header({ user }) {
+  return !user ? (
     <nav className="navbar navbar-light">
       <div className="container">
         <Link className="navbar-brand" to="/">
@@ -50,13 +50,9 @@ function Header({ currentUser }) {
             </Link>
           </li>
           <li className="nav-item">
-            <Link to={`/@${currentUser.username}`} className="nav-link">
-              <img
-                src={currentUser.image}
-                className="user-pic"
-                alt={currentUser.username}
-              />
-              {currentUser.username}
+            <Link to={`/@${user.username}`} className="nav-link">
+              <img src={user.image} className="user-pic" alt={user.username} />
+              {user.username}
             </Link>
           </li>
         </ul>
