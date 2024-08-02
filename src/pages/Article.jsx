@@ -1,19 +1,71 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import articleService from "../services/articles";
+import profileServices from "../services/profiles";
+
+import {
+  favoriteAnArticle,
+  unfavoriteAnArticle,
+} from "../reducers/articleReducer";
 
 function Article({ articleSlug, user }) {
+  const articleList = useSelector((state) => state.articles.articles);
   const [article, setArticle] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (articleSlug) {
-      articleService
-        .getBySlug(articleSlug)
-        .then((art) => setArticle(art.article));
-    }
-  }, []);
+      articleService.getBySlug(articleSlug).then((art) => {
+        setArticle(art.article);
 
-  if (!article) {
+        profileServices
+          .getUserProfile(art.article.author.username)
+          .then((prof) => setProfile(prof.profile));
+      });
+      console.log(
+        "AQUI",
+        articleList.find((a) => a.slug === articleSlug)
+      );
+    }
+  }, [articleList]);
+
+  const handleFollowCLick = async () => {
+    if (profile.following === false) {
+      const updatedProfile = await profileServices.followUser(profile.username);
+      setProfile(updatedProfile.profile);
+    } else {
+      const updatedProfile = await profileServices.unfollowUser(
+        profile.username
+      );
+      setProfile(updatedProfile.profile);
+    }
+  };
+
+  console.log(article);
+  const handleFavoriteCLick = () => {
+    console.log("clicked favorite");
+    if (article.favorited === false) {
+      console.log("was unfavorited");
+      console.log(article.slug);
+
+      dispatch(favoriteAnArticle(article.slug));
+    } else {
+      console.log("was favorited");
+      dispatch(unfavoriteAnArticle(article.slug));
+    }
+  };
+
+  const handleEditCLick = () => {
+    console.log("clicked edit");
+  };
+
+  const handleDeleteCLick = () => {
+    console.log("clicked delete");
+  };
+
+  if (!article || !profile) {
     return <div>No article</div>;
   }
   return (
@@ -23,11 +75,11 @@ function Article({ articleSlug, user }) {
           <h1>{article.title}</h1>
 
           <div className="article-meta">
-            <Link to="/profile/eric-simons">
-              <img src={article.author.image} />
+            <Link to={`/@${profile.username}`}>
+              <img src={article.author.image} alt={article.author.username} />
             </Link>
             <div className="info">
-              <Link to="/profile/eric-simons" className="author">
+              <Link to={`/@${profile.username}`} className="author">
                 {article.author.username}
               </Link>
               <span className="date">
@@ -36,20 +88,45 @@ function Article({ articleSlug, user }) {
             </div>
             {user && (
               <div>
-                <button className="btn btn-sm btn-outline-secondary">
-                  <i className="ion-plus-round" />
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  type="button"
+                  onClick={handleFollowCLick}
+                >
+                  <i
+                    className={
+                      profile.following ? "ion-plus-round" : "ion-minus-round"
+                    }
+                  />
                   &nbsp; Follow {article.author.username}{" "}
-                  <span className="counter">({article.favoritesCount})</span>
+                  <span className="counter">(10?)</span>
                 </button>
                 &nbsp;&nbsp;
-                <button className="btn btn-sm btn-outline-primary">
+                <button
+                  className="btn btn-sm btn-outline-primary"
+                  type="button"
+                  onClick={handleFavoriteCLick}
+                >
                   <i className="ion-heart" />
-                  &nbsp; Favorite Post <span className="counter">(29)</span>
+                  &nbsp; Favorite Post{" "}
+                  <span className="counter">{article.favoritesCount}</span>
                 </button>
-                <button className="btn btn-sm btn-outline-secondary">
-                  <i className="ion-edit" /> Edit Article
-                </button>
-                <button className="btn btn-sm btn-outline-danger">
+                {
+                  /* user.username === article.author.username */ true && (
+                    <button
+                      className="btn btn-sm btn-outline-secondary"
+                      type="button"
+                      onClick={handleEditCLick}
+                    >
+                      <i className="ion-edit" /> Edit Article
+                    </button>
+                  )
+                }
+                <button
+                  className="btn btn-sm btn-outline-danger"
+                  type="button"
+                  onClick={handleDeleteCLick}
+                >
                   <i className="ion-trash-a" /> Delete Article
                 </button>
               </div>

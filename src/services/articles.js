@@ -8,8 +8,15 @@ const setToken = (newToken) => {
   token = `Bearer ${newToken}`;
 };
 
-const getAll = (offset) => {
-  const request = axios.get(baseUrl, { params: { offset } });
+const getAll = (offset, user) => {
+  const config = user
+    ? {
+        headers: { Authorization: token },
+        params: { offset },
+      }
+    : { params: { offset } };
+
+  const request = axios.get(baseUrl, config);
   return request.then((response) => response.data);
 };
 
@@ -37,7 +44,7 @@ const favoriteArticle = async (slug) => {
   const config = {
     headers: { Authorization: token },
   };
-  console.log("token in fav", token);
+
   const response = await axios.post(`${baseUrl}/${slug}/favorite`, {}, config);
   return response.data;
 };

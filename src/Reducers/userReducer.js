@@ -1,6 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 import articlesService from "../services/articles";
 import userService from "../services/users";
+import profileService from "../services/profiles";
+import { initializeArticles } from "./articleReducer";
 
 const userSlice = createSlice({
   name: "user",
@@ -23,8 +25,10 @@ export const initializeUser = () => async (dispatch) => {
   if (loggedUserJSON) {
     const loggedUser = JSON.parse(loggedUserJSON);
     dispatch(setUser(loggedUser));
+    // dispatch(initializeArticles(loggedUser)); /// ////
     articlesService.setToken(loggedUser.user.token);
     userService.setToken(loggedUser.user.token);
+    profileService.setToken(loggedUser.user.token);
   } else {
     dispatch(setUser({ user: null }));
   }

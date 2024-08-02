@@ -27,11 +27,11 @@ function Home() {
   useEffect(() => {
     switch (filter.feed) {
       case "GLOBAL": {
-        dispatch(setArticlesByTag(page, filter.tag));
+        dispatch(setArticlesByTag(page, filter.tag, user));
         break;
       }
       case "TAG": {
-        dispatch(setArticlesByTag(page, filter.tag));
+        dispatch(setArticlesByTag(page, filter.tag, user));
         break;
       }
       case "YOUR": {

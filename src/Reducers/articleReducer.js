@@ -30,8 +30,10 @@ const articleSlice = createSlice({
 export const { setArticles, appendArticle, updateArticle } =
   articleSlice.actions;
 
-export const initializeArticles = (offset) => async (dispatch) => {
-  const articles = await articleService.getAll(offset);
+export const initializeArticles = (offset, user) => async (dispatch) => {
+  console.log("USER in ArtReducecer", user);
+
+  const articles = await articleService.getAll(offset, user);
   dispatch(setArticles(articles));
 };
 
@@ -40,12 +42,12 @@ export const setArticlesByFeed = (offset) => async (dispatch) => {
   dispatch(setArticles(articles));
 };
 
-export const setArticlesByTag = (offset, tag) => async (dispatch) => {
+export const setArticlesByTag = (offset, tag, user) => async (dispatch) => {
   if (tag !== "") {
     const articles = await articleService.getByTag(tag, offset);
     dispatch(setArticles(articles));
   } else {
-    dispatch(initializeArticles(offset));
+    dispatch(initializeArticles(offset, user));
   }
 };
 
@@ -54,6 +56,10 @@ export const getArticleBySlug = (slug) => async () =>
 
 export const favoriteAnArticle = (slug) => async (dispatch) => {
   const updatedArticle = await articleService.favoriteArticle(slug);
+  console.log("returned updated", updatedArticle);
+  const checking = await articleService.getBySlug(slug);
+  console.log("fetched aftewards", checking);
+
   dispatch(updateArticle(updatedArticle));
 };
 

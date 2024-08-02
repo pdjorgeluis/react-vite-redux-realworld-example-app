@@ -9,6 +9,8 @@ import {
 function ArticlePreview({ article }) {
   const dispatch = useDispatch();
 
+  console.log("ACA", article.slug, article.favorited);
+
   const handleFavouriteClick = () => {
     if (article.favorited === false) {
       dispatch(favoriteAnArticle(article.slug));

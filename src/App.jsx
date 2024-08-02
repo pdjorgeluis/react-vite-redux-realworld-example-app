@@ -12,7 +12,7 @@ import Register from "./pages/Register";
 // import { Navbar, Nav } from "react-bootstrap";
 
 import "./App.css";
-
+import articleService from "./services/articles";
 import {
   initializeArticles,
   getArticleBySlug,
@@ -23,24 +23,40 @@ import Profile from "./pages/Profile";
 
 function App() {
   const [message, setMessage] = useState("LOL");
-
+  const [articleBySlug, setArticleBySlug] = useState(null);
   // const articlesList = useSelector((state) => state.articles);
   const user = useSelector((state) => state.loggedUser.user);
 
   const dispatch = useDispatch();
+  // MAKE USE EFFECT ASYNC!
 
+  const initApp = async () => {
+    // dispatch(initializeArticles());
+  };
   useEffect(() => {
+    // console.log("USER", user);
+    // initApp();
     dispatch(initializeUser());
   }, []);
 
   useEffect(() => {
-    dispatch(initializeArticles());
-  }, []);
+    console.log("USER", user);
+
+    dispatch(initializeArticles(0, user));
+  }, [user]);
 
   const articleMatch = useMatch("/article/:slug");
   // const userMatch = useMatch(`/@${user.username}`)
 
   const articleSlug = articleMatch ? articleMatch.params.slug : null;
+
+  /* useEffect(() => {
+    if (articleSlug) {
+      articleService
+        .getBySlug(articleSlug)
+        .then((art) => setArticleBySlug(art.article));
+    }
+  }, [articleSlug]); */
 
   /* let selectedArticle = null;
   useEffect(() => {
