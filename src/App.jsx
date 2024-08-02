@@ -22,26 +22,15 @@ import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 
 function App() {
-  const [message, setMessage] = useState("LOL");
-  const [articleBySlug, setArticleBySlug] = useState(null);
-  // const articlesList = useSelector((state) => state.articles);
   const user = useSelector((state) => state.loggedUser.user);
 
   const dispatch = useDispatch();
-  // MAKE USE EFFECT ASYNC!
 
-  const initApp = async () => {
-    // dispatch(initializeArticles());
-  };
   useEffect(() => {
-    // console.log("USER", user);
-    // initApp();
     dispatch(initializeUser());
   }, []);
 
   useEffect(() => {
-    console.log("USER", user);
-
     dispatch(initializeArticles(0, user));
   }, [user]);
 

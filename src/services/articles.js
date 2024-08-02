@@ -25,7 +25,13 @@ const getByTag = (tag, offset) => {
   return request.then((response) => response.data);
 };
 
-const getBySlug = (slug) => {
+const getBySlug = (slug, user) => {
+  if (user) {
+    const config = { headers: { Authorization: token } };
+    const request = axios.get(`${baseUrl}/${slug}`, config);
+    return request.then((response) => response.data);
+  }
+
   const request = axios.get(`${baseUrl}/${slug}`);
   return request.then((response) => response.data);
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useReducer } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import articleService from "../services/articles";
@@ -11,25 +11,24 @@ import {
 
 function Article({ articleSlug, user }) {
   const articleList = useSelector((state) => state.articles.articles);
+  // const u = useSelector((state) => state.user);
+
   const [article, setArticle] = useState(null);
   const [profile, setProfile] = useState(null);
   const dispatch = useDispatch();
 
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
+
   useEffect(() => {
     if (articleSlug) {
-      articleService.getBySlug(articleSlug).then((art) => {
+      articleService.getBySlug(articleSlug, user).then((art) => {
         setArticle(art.article);
-
         profileServices
           .getUserProfile(art.article.author.username)
           .then((prof) => setProfile(prof.profile));
       });
-      console.log(
-        "AQUI",
-        articleList.find((a) => a.slug === articleSlug)
-      );
     }
-  }, [articleList]);
+  }, [user, articleSlug, articleList]);
 
   const handleFollowCLick = async () => {
     if (profile.following === false) {
@@ -43,18 +42,13 @@ function Article({ articleSlug, user }) {
     }
   };
 
-  console.log(article);
   const handleFavoriteCLick = () => {
-    console.log("clicked favorite");
     if (article.favorited === false) {
-      console.log("was unfavorited");
-      console.log(article.slug);
-
       dispatch(favoriteAnArticle(article.slug));
     } else {
-      console.log("was favorited");
       dispatch(unfavoriteAnArticle(article.slug));
     }
+    forceUpdate();
   };
 
   const handleEditCLick = () => {
