@@ -24,18 +24,20 @@ function Home() {
   }, []);
 
   const dispatch = useDispatch();
+
+  // Improve code below so it doesn need a switch case
   useEffect(() => {
     switch (filter.feed) {
       case "GLOBAL": {
-        dispatch(setArticlesByTag(page, filter.tag, user));
+        dispatch(setArticlesByTag({ offset: page }, filter.tag, user));
         break;
       }
       case "TAG": {
-        dispatch(setArticlesByTag(page, filter.tag, user));
+        dispatch(setArticlesByTag({ offset: page }, filter.tag, user));
         break;
       }
       case "YOUR": {
-        dispatch(setArticlesByFeed(page));
+        dispatch(setArticlesByFeed({ offset: page }));
         break;
       }
       default:

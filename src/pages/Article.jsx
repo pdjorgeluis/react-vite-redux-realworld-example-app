@@ -24,7 +24,7 @@ function Article({ articleSlug, user }) {
       articleService.getBySlug(articleSlug, user).then((art) => {
         setArticle(art.article);
         profileServices
-          .getUserProfile(art.article.author.username)
+          .getUserProfile(art.article.author.username, user)
           .then((prof) => setProfile(prof.profile));
       });
     }
@@ -69,11 +69,11 @@ function Article({ articleSlug, user }) {
           <h1>{article.title}</h1>
 
           <div className="article-meta">
-            <Link to={`/@${profile.username}`}>
+            <Link to={`/${profile.username}`}>
               <img src={article.author.image} alt={article.author.username} />
             </Link>
             <div className="info">
-              <Link to={`/@${profile.username}`} className="author">
+              <Link to={`/${profile.username}`} className="author">
                 {article.author.username}
               </Link>
               <span className="date">
@@ -82,29 +82,33 @@ function Article({ articleSlug, user }) {
             </div>
             {user && (
               <div>
-                <button
-                  className="btn btn-sm btn-outline-secondary"
-                  type="button"
-                  onClick={handleFollowCLick}
-                >
-                  <i
-                    className={
-                      profile.following ? "ion-plus-round" : "ion-minus-round"
-                    }
-                  />
-                  &nbsp; Follow {article.author.username}{" "}
-                  <span className="counter">(10?)</span>
-                </button>
-                &nbsp;&nbsp;
-                <button
-                  className="btn btn-sm btn-outline-primary"
-                  type="button"
-                  onClick={handleFavoriteCLick}
-                >
-                  <i className="ion-heart" />
-                  &nbsp; Favorite Post{" "}
-                  <span className="counter">{article.favoritesCount}</span>
-                </button>
+                {user.username !== article.author.username && (
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    type="button"
+                    onClick={handleFollowCLick}
+                  >
+                    <i
+                      className={
+                        profile.following ? "ion-minus-round" : "ion-plus-round"
+                      }
+                    />
+                    &nbsp; Follow {article.author.username}{" "}
+                    <span className="counter">(10?)</span>
+                  </button>
+                )}
+                &nbsp;
+                {user.username !== article.author.username && (
+                  <button
+                    className="btn btn-sm btn-outline-primary"
+                    type="button"
+                    onClick={handleFavoriteCLick}
+                  >
+                    <i className="ion-heart" />
+                    &nbsp; Favorite Post{" "}
+                    <span className="counter">{article.favoritesCount}</span>
+                  </button>
+                )}
                 {
                   /* user.username === article.author.username */ true && (
                     <button
@@ -155,22 +159,40 @@ function Article({ articleSlug, user }) {
             <div className="article-actions">
               <div className="article-meta">
                 <Link to="profile.html">
-                  <img src="http://i.imgur.com/Qr71crq.jpg" />
+                  <img
+                    src={article.author.image}
+                    alt={article.author.username}
+                  />
                 </Link>
                 <div className="info">
-                  <Link to="" className="author">
-                    Eric Simons
+                  <Link to={`/@${profile.username}`} className="author">
+                    {article.author.username}
                   </Link>
-                  <span className="date">January 20th</span>
+                  <span className="date">
+                    {new Date(article.createdAt).toDateString()}
+                  </span>
                 </div>
-                <button className="btn btn-sm btn-outline-secondary">
-                  <i className="ion-plus-round" />
-                  &nbsp; Follow Eric Simons
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  type="button"
+                  onClick={handleFollowCLick}
+                >
+                  <i
+                    className={
+                      profile.following ? "ion-minus-round" : "ion-plus-round"
+                    }
+                  />
+                  &nbsp; {article.author.username}{" "}
                 </button>
                 &nbsp;
-                <button className="btn btn-sm btn-outline-primary">
+                <button
+                  className="btn btn-sm btn-outline-primary"
+                  type="button"
+                  onClick={handleFavoriteCLick}
+                >
                   <i className="ion-heart" />
-                  &nbsp; Favorite Article <span className="counter">(29)</span>
+                  &nbsp; Favorite Article{" "}
+                  <span className="counter">{article.favoritesCount}</span>
                 </button>
                 <button className="btn btn-sm btn-outline-secondary">
                   <i className="ion-edit" /> Edit Article
@@ -193,8 +215,9 @@ function Article({ articleSlug, user }) {
                   </div>
                   <div className="card-footer">
                     <img
-                      src="http://i.imgur.com/Qr71crq.jpg"
+                      src={user.image}
                       className="comment-author-img"
+                      alt={user.username}
                     />
                     <button className="btn btn-sm btn-primary">
                       Post Comment

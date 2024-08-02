@@ -8,13 +8,13 @@ const setToken = (newToken) => {
   token = `Bearer ${newToken}`;
 };
 
-const getAll = (offset, user) => {
+const getAll = (params, user) => {
   const config = user
     ? {
         headers: { Authorization: token },
-        params: { offset },
+        params,
       }
-    : { params: { offset } };
+    : { params };
 
   const request = axios.get(baseUrl, config);
   return request.then((response) => response.data);

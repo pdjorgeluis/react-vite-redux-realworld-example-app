@@ -9,8 +9,6 @@ import {
 function ArticlePreview({ article }) {
   const dispatch = useDispatch();
 
-  console.log("ACA", article.slug, article.favorited);
-
   const handleFavouriteClick = () => {
     if (article.favorited === false) {
       dispatch(favoriteAnArticle(article.slug));
@@ -22,11 +20,11 @@ function ArticlePreview({ article }) {
   return (
     <div className="article-preview">
       <div className="article-meta">
-        <Link to={`/@${article.author.username}`}>
+        <Link to={`/${article.author.username}`}>
           <img src={article.author.image} alt={article.author.username} />
         </Link>
         <div className="info">
-          <Link to={`/@${article.author.username}`} className="author">
+          <Link to={`/${article.author.username}`} className="author">
             {article.author.username}
           </Link>
           <span className="date">

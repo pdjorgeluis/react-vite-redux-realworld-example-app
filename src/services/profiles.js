@@ -8,7 +8,15 @@ const setToken = (newToken) => {
   token = `Bearer ${newToken}`;
 };
 
-const getUserProfile = (username) => {
+const getUserProfile = (username, user) => {
+  if (user) {
+    const config = {
+      headers: { Authorization: token },
+    };
+    const request = axios.get(`${baseUrl}/${username}`, config);
+    return request.then((response) => response.data);
+  }
+
   const request = axios.get(`${baseUrl}/${username}`);
   return request.then((response) => response.data);
 };

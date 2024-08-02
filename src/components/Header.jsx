@@ -50,7 +50,7 @@ function Header({ user }) {
             </Link>
           </li>
           <li className="nav-item">
-            <Link to={`/@${user.username}`} className="nav-link">
+            <Link to={`/${user.username}`} className="nav-link">
               <img src={user.image} className="user-pic" alt={user.username} />
               {user.username}
             </Link>

@@ -31,13 +31,17 @@ function App() {
   }, []);
 
   useEffect(() => {
-    dispatch(initializeArticles(0, user));
+    dispatch(initializeArticles({}, user));
   }, [user]);
 
   const articleMatch = useMatch("/article/:slug");
+  const profileMatch = useMatch("/:username");
   // const userMatch = useMatch(`/@${user.username}`)
-
+  // console.log("umatch in app", profileMatch);
   const articleSlug = articleMatch ? articleMatch.params.slug : null;
+  const profileUsername = profileMatch ? profileMatch.params.username : null;
+
+  // console.log("username in app", profileUsername);
 
   /* useEffect(() => {
     if (articleSlug) {
@@ -76,8 +80,8 @@ function App() {
         <Route path="/settings" element={<Settings />} />
         {user && (
           <Route
-            path={`/@${user.username}`}
-            element={<Profile user={user} />}
+            path="/:username"
+            element={<Profile username={profileUsername} user={user} />}
           />
         )}
       </Routes>
