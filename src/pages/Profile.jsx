@@ -1,9 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useReducer } from "react";
 import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import profileServices from "../services/profiles";
 import ArticlesList from "../components/ArticlesList";
-import { initializeArticles } from "../reducers/articleReducer";
+import {
+  initializeArticles,
+  favoriteAnArticle,
+  unfavoriteAnArticle,
+} from "../reducers/articleReducer";
 
 function Profile({ username, user }) {
   const [profile, setProfile] = useState(null);
@@ -12,17 +16,22 @@ function Profile({ username, user }) {
     params: { author: username },
   });
   const [page, setPage] = useState(0);
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
+  // const articlesCount = useSelector((state) => state.articles.articlesCount);
+
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(initializeArticles(filter.params, user));
+  }, [filter, page, user]);
+
+  const articlesList = useSelector((state) => state.articles);
 
   useEffect(() => {
     profileServices
       .getUserProfile(username, user)
       .then((prof) => setProfile(prof.profile));
   }, [username, user]);
-
-  useEffect(() => {
-    dispatch(initializeArticles(filter.params, user));
-  }, [filter, page]);
 
   /* useEffect(() => {
         dispatch(initializeArticles({}, user));
@@ -48,7 +57,15 @@ function Profile({ username, user }) {
     setFilter({ feed: "FAV", params: { favorited: username } });
   };
 
-  console.log("profile", profile);
+  /* const handleFavoriteCLick = () => {
+    if (article.favorited === false) {
+      dispatch(favoriteAnArticle(article.slug));
+    } else {
+      dispatch(unfavoriteAnArticle(article.slug));
+    }
+    forceUpdate();
+  }; */
+
   if (!profile) {
     return null;
   }
@@ -120,7 +137,7 @@ function Profile({ username, user }) {
               </ul>
             </div>
 
-            <ArticlesList />
+            <ArticlesList articlesList={articlesList} scope="PROFILE" />
 
             <div className="article-preview">
               <div className="article-meta">

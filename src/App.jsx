@@ -31,8 +31,8 @@ function App() {
   }, []);
 
   useEffect(() => {
-    dispatch(initializeArticles({}, user));
-  }, [user]);
+    // dispatch(initializeArticles({}, user));
+  }, []);
 
   const articleMatch = useMatch("/article/:slug");
   const profileMatch = useMatch("/:username");

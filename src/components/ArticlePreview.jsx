@@ -6,14 +6,14 @@ import {
   unfavoriteAnArticle,
 } from "../reducers/articleReducer";
 
-function ArticlePreview({ article }) {
+function ArticlePreview({ article, scope }) {
   const dispatch = useDispatch();
 
   const handleFavouriteClick = () => {
     if (article.favorited === false) {
-      dispatch(favoriteAnArticle(article.slug));
+      dispatch(favoriteAnArticle(article.slug, scope));
     } else {
-      dispatch(unfavoriteAnArticle(article.slug));
+      dispatch(unfavoriteAnArticle(article.slug, scope));
     }
   };
 

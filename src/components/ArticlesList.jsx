@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import ArticlePreview from "./ArticlePreview";
 
-function ArticlesList() {
+function ArticlesList({ scope }) {
   const articlesList = useSelector((state) => state.articles);
 
   if (!articlesList.articles) {
@@ -16,7 +16,9 @@ function ArticlesList() {
   return (
     <div>
       {articlesList.articles.map((article) => (
-        <ArticlePreview key={article.slug} article={article} />
+        // console.log(article);
+
+        <ArticlePreview key={article.slug} article={article} scope={scope} />
       ))}
     </div>
   );
