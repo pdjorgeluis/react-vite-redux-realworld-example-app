@@ -8,12 +8,14 @@ import { BrowserRouter as Router } from "react-router-dom";
 import App from "./App";
 import articleReducer from "./reducers/articleReducer";
 import userReducer from "./reducers/userReducer";
+import commentReducer from "./reducers/commentReducer";
 // import './index.css';
 
 const store = configureStore({
   reducer: {
     loggedUser: userReducer,
     articles: articleReducer,
+    comments: commentReducer,
   },
 });
 

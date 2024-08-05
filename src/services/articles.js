@@ -64,6 +64,42 @@ const unfavoriteArticle = async (slug) => {
   return response.data;
 };
 
+const getComments = (slug, user) => {
+  const config = user
+    ? {
+        headers: { Authorization: token },
+        params: { slug },
+      }
+    : { params: { slug } };
+
+  const request = axios.get(`${baseUrl}/${slug}/comments`, config);
+  return request.then((response) => response.data);
+};
+
+const createComment = async (slug, newObject) => {
+  const config = {
+    headers: { Authorization: token },
+  };
+
+  const response = await axios.post(
+    `${baseUrl}/${slug}/comments`,
+    newObject,
+    config
+  );
+  return response.data;
+};
+
+const deleteComment = async (slug, id) => {
+  const config = {
+    headers: { Authorization: token },
+  };
+  const response = await axios.delete(
+    `${baseUrl}/${slug}/comments/${id}`,
+    config
+  );
+  return response.data;
+};
+
 const create = async (newObject) => {
   const config = {
     headers: { Authorization: token },
@@ -90,28 +126,18 @@ const deleteBlog = async (id) => {
   return response.data;
 };
 
-const addComment = async (id, newComment) => {
-  const config = {
-    headers: { Authorization: token },
-  };
-  const response = await axios.post(
-    `${baseUrl}/${id}/comments`,
-    newComment,
-    config
-  );
-  return response.data;
-};
-
 export default {
   getAll,
   setToken,
   create,
   update,
   deleteBlog,
-  addComment,
   getByTag,
   getBySlug,
   getAllFeed,
   favoriteArticle,
   unfavoriteArticle,
+  getComments,
+  createComment,
+  deleteComment,
 };

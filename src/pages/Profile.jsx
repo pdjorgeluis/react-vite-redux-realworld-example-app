@@ -3,11 +3,7 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import profileServices from "../services/profiles";
 import ArticlesList from "../components/ArticlesList";
-import {
-  initializeArticles,
-  favoriteAnArticle,
-  unfavoriteAnArticle,
-} from "../reducers/articleReducer";
+import { initializeArticles } from "../reducers/articleReducer";
 
 function Profile({ username, user }) {
   const [profile, setProfile] = useState(null);
@@ -16,7 +12,11 @@ function Profile({ username, user }) {
     params: { author: username },
   });
   const [page, setPage] = useState(0);
-  const [, forceUpdate] = useReducer((x) => x + 1, 0);
+  const articlesCount = useSelector((state) => state.articles.articlesCount);
+  const limit = 10; // make it variable?
+  const pages = Math.ceil(articlesCount / limit);
+
+  // const [, forceUpdate] = useReducer((x) => x + 1, 0);
   // const articlesCount = useSelector((state) => state.articles.articlesCount);
 
   const dispatch = useDispatch();
@@ -25,7 +25,7 @@ function Profile({ username, user }) {
     dispatch(initializeArticles(filter.params, user));
   }, [filter, page, user]);
 
-  const articlesList = useSelector((state) => state.articles);
+  // const articlesList = useSelector((state) => state.articles);
 
   useEffect(() => {
     profileServices
@@ -137,48 +137,23 @@ function Profile({ username, user }) {
               </ul>
             </div>
 
-            <ArticlesList articlesList={articlesList} scope="PROFILE" />
-
-            <div className="article-preview">
-              <div className="article-meta">
-                <Link to="/profile/albert-pai">
-                  <img src="http://i.imgur.com/N4VcUeJ.jpg" />
-                </Link>
-                <div className="info">
-                  <Link to="/profile/albert-pai" className="author">
-                    Albert Pai
-                  </Link>
-                  <span className="date">January 20th</span>
-                </div>
-                <button className="btn btn-outline-primary btn-sm pull-xs-right">
-                  <i className="ion-heart" /> 32
-                </button>
-              </div>
-              <Link to="/article/the-song-you" className="preview-link">
-                <h1>
-                  The song you won't ever stop singing. No matter how hard you
-                  try.
-                </h1>
-                <p>This is the description for the post.</p>
-                <span>Read more...</span>
-                <ul className="tag-list">
-                  <li className="tag-default tag-pill tag-outline">Music</li>
-                  <li className="tag-default tag-pill tag-outline">Song</li>
-                </ul>
-              </Link>
-            </div>
+            <ArticlesList scope="PROFILE" />
 
             <ul className="pagination">
-              <li className="page-item active">
-                <Link className="page-link" to="">
-                  1
-                </Link>
-              </li>
-              <li className="page-item">
-                <Link className="page-link" to="">
-                  2
-                </Link>
-              </li>
+              {Array.from({ length: pages }, (v, i) => (
+                <li
+                  className={page === i ? "page-item active" : "page-item"}
+                  key={i}
+                >
+                  <button
+                    className="page-link"
+                    type="button"
+                    onClick={() => setPage(i)}
+                  >
+                    {i + 1}
+                  </button>
+                </li>
+              ))}
             </ul>
           </div>
         </div>

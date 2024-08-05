@@ -9,7 +9,7 @@ const articleSlice = createSlice({
       return action.payload;
     },
     appendArticle(state, action) {
-      state.push(action.payload);
+      state.articles.push(action.payload);
     },
     updateArticle(state, action) {
       const newArticle = action.payload;
@@ -18,22 +18,22 @@ const articleSlice = createSlice({
       );
       return { ...state, articles: newList };
     },
-    /* removeArticle(state, action) {
-      const id = action.payload
-      return state.filter((blog) => blog.id !== id)
+    removeArticle(state, action) {
+      const articleToRemove = action.payload;
+      const newList = state.articles.filter(
+        (article) => article.slug !== articleToRemove.article.slug
+      );
+
+      return { articles: newList, articlesCount: state.articlesCount - 1 };
     },
-    
-  */
   },
 });
 
-export const { setArticles, appendArticle, updateArticle } =
+export const { setArticles, appendArticle, updateArticle, removeArticle } =
   articleSlice.actions;
 
-export const initializeArticles = (offset, user) => async (dispatch) => {
-  console.log("USER in ArtReducecer", user);
-
-  const articles = await articleService.getAll(offset, user);
+export const initializeArticles = (params, user) => async (dispatch) => {
+  const articles = await articleService.getAll(params, user);
   dispatch(setArticles(articles));
 };
 
@@ -54,18 +54,25 @@ export const setArticlesByTag = (offset, tag, user) => async (dispatch) => {
 export const getArticleBySlug = (slug) => async () =>
   articleService.getBySlug(slug);
 
-export const favoriteAnArticle = (slug) => async (dispatch) => {
+export const favoriteAnArticle = (slug, scope) => async (dispatch) => {
   const updatedArticle = await articleService.favoriteArticle(slug);
-  console.log("returned updated", updatedArticle);
-  const checking = await articleService.getBySlug(slug);
-  console.log("fetched aftewards", checking);
-
-  dispatch(updateArticle(updatedArticle));
+  if (scope === "PROFILE") {
+    dispatch(appendArticle(updatedArticle));
+  } else {
+    dispatch(updateArticle(updatedArticle));
+  }
 };
 
-export const unfavoriteAnArticle = (slug) => async (dispatch) => {
+export const unfavoriteAnArticle = (slug, scope) => async (dispatch) => {
   const updatedArticle = await articleService.unfavoriteArticle(slug);
-  dispatch(updateArticle(updatedArticle));
+  console.log("scope", scope);
+
+  if (scope === "PROFILE") {
+    console.log("unfavorited in preview");
+    dispatch(removeArticle(updatedArticle));
+  } else {
+    dispatch(updateArticle(updatedArticle));
+  }
 };
 
 export default articleSlice.reducer;

@@ -8,9 +8,16 @@ import {
   favoriteAnArticle,
   unfavoriteAnArticle,
 } from "../reducers/articleReducer";
+import {
+  initComments,
+  addComment,
+  deleteComment,
+} from "../reducers/commentReducer";
+import Comment from "../components/Comment";
 
 function Article({ articleSlug, user }) {
   const articleList = useSelector((state) => state.articles.articles);
+  const commentList = useSelector((state) => state.comments.comments);
   // const u = useSelector((state) => state.user);
 
   const [article, setArticle] = useState(null);
@@ -26,6 +33,7 @@ function Article({ articleSlug, user }) {
         profileServices
           .getUserProfile(art.article.author.username, user)
           .then((prof) => setProfile(prof.profile));
+        dispatch(initComments(articleSlug, user));
       });
     }
   }, [user, articleSlug, articleList]);
@@ -57,6 +65,18 @@ function Article({ articleSlug, user }) {
 
   const handleDeleteCLick = () => {
     console.log("clicked delete");
+  };
+
+  const handlePostComment = (event) => {
+    event.preventDefault();
+    dispatch(
+      addComment(articleSlug, { comment: { body: event.target.comment.value } })
+    );
+    event.target.reset();
+  };
+
+  const handleDeleteComment = (comment) => {
+    dispatch(deleteComment(articleSlug, comment));
   };
 
   if (!article || !profile) {
@@ -205,12 +225,16 @@ function Article({ articleSlug, user }) {
 
             <div className="row">
               <div className="col-xs-12 col-md-8 offset-md-2">
-                <form className="card comment-form">
+                <form
+                  className="card comment-form"
+                  onSubmit={handlePostComment}
+                >
                   <div className="card-block">
                     <textarea
                       className="form-control"
                       placeholder="Write a comment..."
                       rows="3"
+                      name="comment"
                     />
                   </div>
                   <div className="card-footer">
@@ -219,64 +243,20 @@ function Article({ articleSlug, user }) {
                       className="comment-author-img"
                       alt={user.username}
                     />
-                    <button className="btn btn-sm btn-primary">
+                    <button className="btn btn-sm btn-primary" type="submit">
                       Post Comment
                     </button>
                   </div>
                 </form>
 
-                <div className="card">
-                  <div className="card-block">
-                    <p className="card-text">
-                      With supporting text below as a natural lead-in to
-                      additional content.
-                    </p>
-                  </div>
-                  <div className="card-footer">
-                    <Link to="/profile/author" className="comment-author">
-                      <img
-                        src="http://i.imgur.com/Qr71crq.jpg"
-                        className="comment-author-img"
-                      />
-                    </Link>
-                    &nbsp;
-                    <Link
-                      to="/profile/jacob-schmidt"
-                      className="comment-author"
-                    >
-                      Jacob Schmidt
-                    </Link>
-                    <span className="date-posted">Dec 29th</span>
-                  </div>
-                </div>
-
-                <div className="card">
-                  <div className="card-block">
-                    <p className="card-text">
-                      With supporting text below as a natural lead-in to
-                      additional content.
-                    </p>
-                  </div>
-                  <div className="card-footer">
-                    <Link to="/profile/author" className="comment-author">
-                      <img
-                        src="http://i.imgur.com/Qr71crq.jpg"
-                        className="comment-author-img"
-                      />
-                    </Link>
-                    &nbsp;
-                    <Link
-                      to="/profile/jacob-schmidt"
-                      className="comment-author"
-                    >
-                      Jacob Schmidt
-                    </Link>
-                    <span className="date-posted">Dec 29th</span>
-                    <span className="mod-options">
-                      <i className="ion-trash-a" />
-                    </span>
-                  </div>
-                </div>
+                {commentList.map((comment) => (
+                  <Comment
+                    key={comment.id}
+                    comment={comment}
+                    user={user}
+                    onClickButton={() => handleDeleteComment(comment)}
+                  />
+                ))}
               </div>
             </div>
           </div>
