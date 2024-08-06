@@ -19,7 +19,6 @@ import Comment from "../components/Comment";
 function Article({ articleSlug, user }) {
   const articleList = useSelector((state) => state.articles.articles);
   const commentList = useSelector((state) => state.comments.comments);
-  // const u = useSelector((state) => state.user);
 
   const [article, setArticle] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -61,14 +60,10 @@ function Article({ articleSlug, user }) {
     forceUpdate();
   };
 
-  const handleEditCLick = () => {
-    console.log("clicked edit");
-  };
-
   const handleDeleteCLick = () => {
+    // eslint-disable-next-line no-alert
     if (window.confirm(`Remove article ${article.title}?`)) {
       try {
-        console.log("clicked delete");
         dispatch(deleteArticle(articleSlug));
         navigate(`/${user.username}`);
       } catch (error) {

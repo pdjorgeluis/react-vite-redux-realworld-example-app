@@ -14,7 +14,7 @@ import {
 function Home() {
   const user = useSelector((state) => state.loggedUser.user);
   const articlesCount = useSelector((state) => state.articles.articlesCount);
-  const limit = 10; // make it variable?
+  const limit = 10;
   const pages = Math.ceil(articlesCount / limit);
   const [page, setPage] = useState(0);
   const [tags, setTags] = useState([]);
@@ -30,7 +30,6 @@ function Home() {
     tagsService.getAll().then((fetchedTags) => setTags(fetchedTags.tags));
   }, []);
 
-  // Improve code below so it doesn need a switch case
   useEffect(() => {
     switch (filter.feed) {
       case "GLOBAL": {

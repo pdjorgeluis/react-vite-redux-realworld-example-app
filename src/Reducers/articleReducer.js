@@ -66,8 +66,6 @@ export const favoriteAnArticle = (slug, scope) => async (dispatch) => {
 
 export const unfavoriteAnArticle = (slug, scope) => async (dispatch) => {
   const updatedArticle = await articleService.unfavoriteArticle(slug);
-  console.log("scope", scope);
-
   if (scope === "FAV") {
     console.log("unfavorited in preview");
     dispatch(removeArticle(updatedArticle));

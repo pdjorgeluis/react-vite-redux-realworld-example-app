@@ -28,7 +28,9 @@ function Comment({ comment, user, onClickButton }) {
               className="ion-trash-a"
               type="button"
               onClick={onClickButton}
-             />
+            >
+              {" "}
+            </button>
           </span>
         )}
       </div>

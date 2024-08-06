@@ -12,8 +12,6 @@ function ArticlePreview({ article, scope }) {
 
   const handleFavouriteClick = () => {
     if (user.username !== article.author.username) {
-      console.log("jum");
-
       try {
         if (article.favorited === false) {
           dispatch(favoriteAnArticle(article.slug, scope));

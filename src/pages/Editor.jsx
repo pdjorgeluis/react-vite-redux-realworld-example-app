@@ -1,44 +1,27 @@
-import React, { useEffect, useState, useReducer } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  createArticle,
-  initializeArticles,
-  update,
-} from "../reducers/articleReducer";
-import tagsService from "../services/tags";
 import articleService from "../services/articles";
 import Notifications from "../components/Notifications";
 
 function Editor({ articleSlug }) {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [inputTag, setInputTag] = useState();
   const [tags, setTags] = useState([]);
-  // const [tagsToShow, setTagsToShow] = useState([]);
+
   const [article, setArticle] = useState(null);
   const [error, setError] = useState(null);
-  // const [state, forceUpdate] = useReducer((x) => x + 1, 0);
 
   useEffect(() => {
-    // tagsService.getAll().then((fetchedTags) => setTags(fetchedTags.tags));
     if (articleSlug) {
-      console.log("Slug in effect", articleSlug);
       articleService.getBySlug(articleSlug).then((a) => {
         setArticle(a.article);
-
         setTags(a.article.tagList);
       });
     }
     return () => setTags([]);
   }, [articleSlug]);
-
-  /** useEffect(() => {
-    if (article) {
-      setTags(article.tagList);
-    }
-  }, [article]); */
 
   const handlePublish = async (event) => {
     setError(null);
@@ -53,19 +36,13 @@ function Editor({ articleSlug }) {
     };
     try {
       if (!articleSlug) {
-        // const nArt = dispatch(createArticle(newArticle));
         const createdArticle = await articleService.create(newArticle);
-        console.log("created article", createdArticle);
         navigate(`/${createdArticle.article.author.username}`);
       } else {
-        // const a = await dispatch(update(articleSlug, newArticle));
-        // console.log("a", a);
         const updatedArticle = await articleService.update(
           articleSlug,
           newArticle
         );
-        console.log("updated article", updatedArticle);
-
         setArticle(updatedArticle.article);
         setTags(updatedArticle.article.tagList);
       }
@@ -83,7 +60,6 @@ function Editor({ articleSlug }) {
     setTags(tags.filter((t) => t !== tag));
   };
 
-  // const tagsToShow = tags || null;
   return (
     <div className="editor-page">
       <div className="container page">

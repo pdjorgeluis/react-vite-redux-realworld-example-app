@@ -16,8 +16,6 @@ function ArticlesList({ scope }) {
   return (
     <div>
       {articlesList.articles.map((article) => (
-        // console.log(article);
-
         <ArticlePreview key={article.slug} article={article} scope={scope} />
       ))}
     </div>

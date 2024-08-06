@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setUser } from "../reducers/userReducer";
 import Notification from "../components/Notifications";
@@ -7,7 +7,6 @@ import userService from "../services/users";
 import articlesService from "../services/articles";
 
 function Login() {
-  // const user = useSelector((state) => state.loggedUser.user);
   const [error, setError] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,14 +16,6 @@ function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError(null);
-    /* if (email === "") {
-      setErrorMessages([`email can't be blank`]);
-      return;
-    }
-    if (password === "") {
-      setErrorMessages([`password can't be blank`]);
-      return;
-    } */
 
     try {
       const userToLogin = await userService.login({

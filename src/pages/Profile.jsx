@@ -11,13 +11,10 @@ function Profile({ username, user }) {
     feed: "MY",
     params: { offset: 0, author: username },
   });
-  // const [page, setPage] = useState(0);
-  const articlesCount = useSelector((state) => state.articles.articlesCount);
-  const limit = 10; // make it variable?
-  const pages = Math.ceil(articlesCount / limit);
 
-  // const [, forceUpdate] = useReducer((x) => x + 1, 0);
-  // const articlesCount = useSelector((state) => state.articles.articlesCount);
+  const articlesCount = useSelector((state) => state.articles.articlesCount);
+  const limit = 10;
+  const pages = Math.ceil(articlesCount / limit);
 
   const dispatch = useDispatch();
 
@@ -25,18 +22,12 @@ function Profile({ username, user }) {
     dispatch(initializeArticles(filter.params, user));
   }, [filter, user]);
 
-  // const articlesList = useSelector((state) => state.articles);
-
   useEffect(() => {
     profileServices.getUserProfile(username, user).then((prof) => {
       setProfile(prof.profile);
       setFilter({ feed: "MY", params: { offset: 0, author: username } });
     });
   }, [username, user]);
-
-  /* useEffect(() => {
-        dispatch(initializeArticles({}, user));
-  }, [params, page]); */
 
   const handleFollowCLick = async () => {
     if (profile.following === false) {
@@ -55,7 +46,6 @@ function Profile({ username, user }) {
       feed: "MY",
       params: { ...filter.params, author: username, favorited: null },
     });
-    console.log(filter);
   };
 
   const handleFavoritedFeedClick = () => {
@@ -64,17 +54,6 @@ function Profile({ username, user }) {
       params: { ...filter.params, favorited: username, author: null },
     });
   };
-
-  /* const handleFavoriteCLick = () => {
-    if (article.favorited === false) {
-      dispatch(favoriteAnArticle(article.slug));
-    } else {
-      dispatch(unfavoriteAnArticle(article.slug));
-    }
-    forceUpdate();
-  }; */
-
-  console.log("countArticles", articlesCount);
 
   if (!profile) {
     return null;
