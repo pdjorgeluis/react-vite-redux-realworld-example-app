@@ -109,12 +109,12 @@ const create = async (newObject) => {
   return response.data;
 };
 
-const update = async (id, newObject) => {
+const update = async (slug, newObject) => {
   const config = {
     headers: { Authorization: token },
   };
 
-  const response = await axios.put(`${baseUrl}/${id}`, newObject, config);
+  const response = await axios.put(`${baseUrl}/${slug}`, newObject, config);
   return response.data;
 };
 

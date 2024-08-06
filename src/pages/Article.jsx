@@ -131,13 +131,12 @@ function Article({ articleSlug, user }) {
                 )}
                 {
                   /* user.username === article.author.username */ true && (
-                    <button
+                    <Link
                       className="btn btn-sm btn-outline-secondary"
-                      type="button"
-                      onClick={handleEditCLick}
+                      to={`/editor/${articleSlug}`}
                     >
                       <i className="ion-edit" /> Edit Article
-                    </button>
+                    </Link>
                   )
                 }
                 <button
@@ -214,9 +213,12 @@ function Article({ articleSlug, user }) {
                   &nbsp; Favorite Article{" "}
                   <span className="counter">{article.favoritesCount}</span>
                 </button>
-                <button className="btn btn-sm btn-outline-secondary">
+                <Link
+                  className="btn btn-sm btn-outline-secondary"
+                  to={`/editor/${articleSlug}`}
+                >
                   <i className="ion-edit" /> Edit Article
-                </button>
+                </Link>
                 <button className="btn btn-sm btn-outline-danger">
                   <i className="ion-trash-a" /> Delete Article
                 </button>

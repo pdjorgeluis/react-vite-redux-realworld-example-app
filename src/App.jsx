@@ -20,6 +20,7 @@ import {
 import Article from "./pages/Article";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
+import Editor from "./pages/Editor";
 
 function App() {
   const user = useSelector((state) => state.loggedUser.user);
@@ -36,10 +37,12 @@ function App() {
 
   const articleMatch = useMatch("/article/:slug");
   const profileMatch = useMatch("/:username");
+  const editorMatch = useMatch("/editor/:slug");
   // const userMatch = useMatch(`/@${user.username}`)
   // console.log("umatch in app", profileMatch);
   const articleSlug = articleMatch ? articleMatch.params.slug : null;
   const profileUsername = profileMatch ? profileMatch.params.username : null;
+  const editorSlug = editorMatch ? editorMatch.params.slug : null;
 
   // console.log("username in app", profileUsername);
 
@@ -84,6 +87,11 @@ function App() {
             element={<Profile username={profileUsername} user={user} />}
           />
         )}
+        <Route path="/editor" element={<Editor />} />
+        <Route
+          path="/editor/:slug"
+          element={<Editor articleSlug={editorSlug} />}
+        />
       </Routes>
       <Footer />
     </div>
