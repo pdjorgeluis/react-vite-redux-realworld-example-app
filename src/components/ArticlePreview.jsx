@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   favoriteAnArticle,
   unfavoriteAnArticle,
@@ -8,14 +8,27 @@ import {
 
 function ArticlePreview({ article, scope }) {
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.loggedUser.user);
 
   const handleFavouriteClick = () => {
-    if (article.favorited === false) {
-      dispatch(favoriteAnArticle(article.slug, scope));
-    } else {
-      dispatch(unfavoriteAnArticle(article.slug, scope));
+    if (user.username !== article.author.username) {
+      console.log("jum");
+
+      try {
+        if (article.favorited === false) {
+          dispatch(favoriteAnArticle(article.slug, scope));
+        } else {
+          dispatch(unfavoriteAnArticle(article.slug, scope));
+        }
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
+
+  if (!article) {
+    return null;
+  }
 
   return (
     <div className="article-preview">

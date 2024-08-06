@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useReducer } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import articleService from "../services/articles";
 import profileServices from "../services/profiles";
@@ -7,6 +7,7 @@ import profileServices from "../services/profiles";
 import {
   favoriteAnArticle,
   unfavoriteAnArticle,
+  deleteArticle,
 } from "../reducers/articleReducer";
 import {
   initComments,
@@ -25,6 +26,7 @@ function Article({ articleSlug, user }) {
   const dispatch = useDispatch();
 
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (articleSlug) {
@@ -64,7 +66,15 @@ function Article({ articleSlug, user }) {
   };
 
   const handleDeleteCLick = () => {
-    console.log("clicked delete");
+    if (window.confirm(`Remove article ${article.title}?`)) {
+      try {
+        console.log("clicked delete");
+        dispatch(deleteArticle(articleSlug));
+        navigate(`/${user.username}`);
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
   const handlePostComment = (event) => {
@@ -129,23 +139,23 @@ function Article({ articleSlug, user }) {
                     <span className="counter">{article.favoritesCount}</span>
                   </button>
                 )}
-                {
-                  /* user.username === article.author.username */ true && (
-                    <Link
-                      className="btn btn-sm btn-outline-secondary"
-                      to={`/editor/${articleSlug}`}
-                    >
-                      <i className="ion-edit" /> Edit Article
-                    </Link>
-                  )
-                }
-                <button
-                  className="btn btn-sm btn-outline-danger"
-                  type="button"
-                  onClick={handleDeleteCLick}
-                >
-                  <i className="ion-trash-a" /> Delete Article
-                </button>
+                {user.username === article.author.username && (
+                  <Link
+                    className="btn btn-sm btn-outline-secondary"
+                    to={`/editor/${articleSlug}`}
+                  >
+                    <i className="ion-edit" /> Edit Article
+                  </Link>
+                )}
+                {user.username === article.author.username && (
+                  <button
+                    className="btn btn-sm btn-outline-danger"
+                    type="button"
+                    onClick={handleDeleteCLick}
+                  >
+                    <i className="ion-trash-a" /> Delete Article
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -191,37 +201,49 @@ function Article({ articleSlug, user }) {
                     {new Date(article.createdAt).toDateString()}
                   </span>
                 </div>
-                <button
-                  className="btn btn-sm btn-outline-secondary"
-                  type="button"
-                  onClick={handleFollowCLick}
-                >
-                  <i
-                    className={
-                      profile.following ? "ion-minus-round" : "ion-plus-round"
-                    }
-                  />
-                  &nbsp; {article.author.username}{" "}
-                </button>
+                {user.username !== article.author.username && (
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    type="button"
+                    onClick={handleFollowCLick}
+                  >
+                    <i
+                      className={
+                        profile.following ? "ion-minus-round" : "ion-plus-round"
+                      }
+                    />
+                    &nbsp; {article.author.username}{" "}
+                  </button>
+                )}
                 &nbsp;
-                <button
-                  className="btn btn-sm btn-outline-primary"
-                  type="button"
-                  onClick={handleFavoriteCLick}
-                >
-                  <i className="ion-heart" />
-                  &nbsp; Favorite Article{" "}
-                  <span className="counter">{article.favoritesCount}</span>
-                </button>
-                <Link
-                  className="btn btn-sm btn-outline-secondary"
-                  to={`/editor/${articleSlug}`}
-                >
-                  <i className="ion-edit" /> Edit Article
-                </Link>
-                <button className="btn btn-sm btn-outline-danger">
-                  <i className="ion-trash-a" /> Delete Article
-                </button>
+                {user.username !== article.author.username && (
+                  <button
+                    className="btn btn-sm btn-outline-primary"
+                    type="button"
+                    onClick={handleFavoriteCLick}
+                  >
+                    <i className="ion-heart" />
+                    &nbsp; Favorite Article{" "}
+                    <span className="counter">{article.favoritesCount}</span>
+                  </button>
+                )}
+                {user.username === article.author.username && (
+                  <Link
+                    className="btn btn-sm btn-outline-secondary"
+                    to={`/editor/${articleSlug}`}
+                  >
+                    <i className="ion-edit" /> Edit Article
+                  </Link>
+                )}
+                {user.username === article.author.username && (
+                  <button
+                    className="btn btn-sm btn-outline-danger"
+                    type="button"
+                    onClick={handleDeleteCLick}
+                  >
+                    <i className="ion-trash-a" /> Delete Article
+                  </button>
+                )}
               </div>
             </div>
 

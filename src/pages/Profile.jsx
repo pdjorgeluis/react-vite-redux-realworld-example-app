@@ -9,9 +9,9 @@ function Profile({ username, user }) {
   const [profile, setProfile] = useState(null);
   const [filter, setFilter] = useState({
     feed: "MY",
-    params: { author: username },
+    params: { offset: 0, author: username },
   });
-  const [page, setPage] = useState(0);
+  // const [page, setPage] = useState(0);
   const articlesCount = useSelector((state) => state.articles.articlesCount);
   const limit = 10; // make it variable?
   const pages = Math.ceil(articlesCount / limit);
@@ -23,14 +23,15 @@ function Profile({ username, user }) {
 
   useEffect(() => {
     dispatch(initializeArticles(filter.params, user));
-  }, [filter, page, user]);
+  }, [filter, user]);
 
   // const articlesList = useSelector((state) => state.articles);
 
   useEffect(() => {
-    profileServices
-      .getUserProfile(username, user)
-      .then((prof) => setProfile(prof.profile));
+    profileServices.getUserProfile(username, user).then((prof) => {
+      setProfile(prof.profile);
+      setFilter({ feed: "MY", params: { offset: 0, author: username } });
+    });
   }, [username, user]);
 
   /* useEffect(() => {
@@ -50,11 +51,18 @@ function Profile({ username, user }) {
   };
 
   const handleMyFeedClick = () => {
-    setFilter({ feed: "MY", params: { author: username } });
+    setFilter({
+      feed: "MY",
+      params: { ...filter.params, author: username, favorited: null },
+    });
+    console.log(filter);
   };
 
   const handleFavoritedFeedClick = () => {
-    setFilter({ feed: "FAV", params: { favorited: username } });
+    setFilter({
+      feed: "FAV",
+      params: { ...filter.params, favorited: username, author: null },
+    });
   };
 
   /* const handleFavoriteCLick = () => {
@@ -65,6 +73,8 @@ function Profile({ username, user }) {
     }
     forceUpdate();
   }; */
+
+  console.log("countArticles", articlesCount);
 
   if (!profile) {
     return null;
@@ -137,18 +147,27 @@ function Profile({ username, user }) {
               </ul>
             </div>
 
-            <ArticlesList scope="PROFILE" />
+            <ArticlesList scope={filter.feed} />
 
             <ul className="pagination">
               {Array.from({ length: pages }, (v, i) => (
                 <li
-                  className={page === i ? "page-item active" : "page-item"}
+                  className={
+                    filter.params.offset === i
+                      ? "page-item active"
+                      : "page-item"
+                  }
                   key={i}
                 >
                   <button
                     className="page-link"
                     type="button"
-                    onClick={() => setPage(i)}
+                    onClick={() =>
+                      setFilter({
+                        ...filter,
+                        params: { ...filter.params, offset: i * limit },
+                      })
+                    }
                   >
                     {i + 1}
                   </button>

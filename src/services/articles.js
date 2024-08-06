@@ -20,8 +20,8 @@ const getAll = (params, user) => {
   return request.then((response) => response.data);
 };
 
-const getByTag = (tag, offset) => {
-  const request = axios.get(baseUrl, { params: { tag, offset } });
+const getByTag = (tag, params) => {
+  const request = axios.get(baseUrl, { params });
   return request.then((response) => response.data);
 };
 
@@ -36,10 +36,10 @@ const getBySlug = (slug, user) => {
   return request.then((response) => response.data);
 };
 
-const getAllFeed = (offset) => {
+const getAllFeed = (params) => {
   const config = {
     headers: { Authorization: token },
-    params: { offset },
+    params,
   };
 
   const request = axios.get(`${baseUrl}/feed`, config);
@@ -118,11 +118,11 @@ const update = async (slug, newObject) => {
   return response.data;
 };
 
-const deleteBlog = async (id) => {
+const deleteArticle = async (slug) => {
   const config = {
     headers: { Authorization: token },
   };
-  const response = await axios.delete(`${baseUrl}/${id}`, config);
+  const response = await axios.delete(`${baseUrl}/${slug}`, config);
   return response.data;
 };
 
@@ -131,7 +131,7 @@ export default {
   setToken,
   create,
   update,
-  deleteBlog,
+  deleteArticle,
   getByTag,
   getBySlug,
   getAllFeed,

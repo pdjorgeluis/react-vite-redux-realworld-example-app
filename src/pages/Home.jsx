@@ -8,6 +8,7 @@ import ArticlesList from "../components/ArticlesList";
 import {
   setArticlesByTag,
   setArticlesByFeed,
+  initializeArticles,
 } from "../reducers/articleReducer";
 
 function Home() {
@@ -17,44 +18,48 @@ function Home() {
   const pages = Math.ceil(articlesCount / limit);
   const [page, setPage] = useState(0);
   const [tags, setTags] = useState([]);
-  const [filter, setFilter] = useState({ tag: "", feed: "GLOBAL" });
+  const [filter, setFilter] = useState({
+    tag: "",
+    feed: "GLOBAL",
+    params: { offset: 0 },
+  });
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     tagsService.getAll().then((fetchedTags) => setTags(fetchedTags.tags));
   }, []);
 
-  const dispatch = useDispatch();
-
   // Improve code below so it doesn need a switch case
   useEffect(() => {
     switch (filter.feed) {
       case "GLOBAL": {
-        dispatch(setArticlesByTag({ offset: page }, filter.tag, user));
+        dispatch(initializeArticles(filter.params, user));
         break;
       }
       case "TAG": {
-        dispatch(setArticlesByTag({ offset: page }, filter.tag, user));
+        dispatch(setArticlesByTag(filter.params, filter.tag, user));
         break;
       }
       case "YOUR": {
-        dispatch(setArticlesByFeed({ offset: page }));
+        dispatch(setArticlesByFeed(filter.params));
         break;
       }
       default:
         break;
     }
-  }, [filter, page]);
+  }, [filter, page, user]);
 
   const handleTagClick = (t) => {
-    setFilter({ tag: t, feed: "TAG" });
+    setFilter({ tag: t, feed: "TAG", params: { offset: 0 } });
   };
 
   const handleGlobalFeedClick = () => {
-    setFilter({ tag: "", feed: "GLOBAL" });
+    setFilter({ tag: "", feed: "GLOBAL", params: { offset: 0 } });
   };
 
   const handleYourFeedClick = () => {
-    setFilter({ tag: "", feed: "YOUR" });
+    setFilter({ tag: "", feed: "YOUR", params: { offset: 0 } });
   };
 
   return (
@@ -111,7 +116,13 @@ function Home() {
                   <button
                     className="page-link"
                     type="button"
-                    onClick={() => setPage(i)}
+                    onClick={() => {
+                      setPage(i);
+                      setFilter({
+                        ...filter,
+                        params: { ...filter.params, offset: i * limit },
+                      });
+                    }}
                   >
                     {i + 1}
                   </button>

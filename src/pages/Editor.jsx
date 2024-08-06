@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useReducer } from "react";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   createArticle,
   initializeArticles,
@@ -8,35 +8,40 @@ import {
 } from "../reducers/articleReducer";
 import tagsService from "../services/tags";
 import articleService from "../services/articles";
+import Notifications from "../components/Notifications";
 
 function Editor({ articleSlug }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [inputTag, setInputTag] = useState();
   const [tags, setTags] = useState([]);
   // const [tagsToShow, setTagsToShow] = useState([]);
   const [article, setArticle] = useState(null);
-
-  const [state, forceUpdate] = useReducer((x) => x + 1, 0);
+  const [error, setError] = useState(null);
+  // const [state, forceUpdate] = useReducer((x) => x + 1, 0);
 
   useEffect(() => {
     // tagsService.getAll().then((fetchedTags) => setTags(fetchedTags.tags));
     if (articleSlug) {
+      console.log("Slug in effect", articleSlug);
       articleService.getBySlug(articleSlug).then((a) => {
         setArticle(a.article);
-        console.log("article in effect", a.article);
 
-        // setTagsToShow(a.article.tagList);
+        setTags(a.article.tagList);
       });
     }
+    return () => setTags([]);
   }, [articleSlug]);
 
-  useEffect(() => {
+  /** useEffect(() => {
     if (article) {
       setTags(article.tagList);
     }
-  }, [article]);
+  }, [article]); */
 
   const handlePublish = async (event) => {
+    setError(null);
     event.preventDefault();
     const newArticle = {
       article: {
@@ -46,16 +51,28 @@ function Editor({ articleSlug }) {
         tagList: !inputTag ? tags : tags.concat(inputTag),
       },
     };
-    if (!articleSlug) {
-      dispatch(createArticle(newArticle));
-    } else {
-      const a = await dispatch(update(articleSlug, newArticle));
-      console.log("a", a);
+    try {
+      if (!articleSlug) {
+        // const nArt = dispatch(createArticle(newArticle));
+        const createdArticle = await articleService.create(newArticle);
+        console.log("created article", createdArticle);
+        navigate(`/${createdArticle.article.author.username}`);
+      } else {
+        // const a = await dispatch(update(articleSlug, newArticle));
+        // console.log("a", a);
+        const updatedArticle = await articleService.update(
+          articleSlug,
+          newArticle
+        );
+        console.log("updated article", updatedArticle);
 
-      setArticle(a);
+        setArticle(updatedArticle.article);
+        setTags(updatedArticle.article.tagList);
+      }
+      setInputTag("");
+    } catch (exception) {
+      setError(exception);
     }
-
-    setInputTag("");
   };
 
   const handleOnChangeTag = (event) => {
@@ -66,15 +83,13 @@ function Editor({ articleSlug }) {
     setTags(tags.filter((t) => t !== tag));
   };
 
-  const tagsToShow = tags || null;
+  // const tagsToShow = tags || null;
   return (
     <div className="editor-page">
       <div className="container page">
         <div className="row">
           <div className="col-md-10 offset-md-1 col-xs-12">
-            <ul className="error-messages">
-              <li>That title is required</li>
-            </ul>
+            <Notifications error={error} />
 
             <form onSubmit={handlePublish}>
               <fieldset>
@@ -117,8 +132,8 @@ function Editor({ articleSlug }) {
                     onChange={(event) => handleOnChangeTag(event)}
                   />
                   <div className="tag-list">
-                    {tagsToShow &&
-                      tagsToShow.map((t) => (
+                    {tags &&
+                      tags.map((t) => (
                         <Link
                           className="tag-default tag-pill"
                           to=""
