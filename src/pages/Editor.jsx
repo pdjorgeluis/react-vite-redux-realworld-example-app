@@ -13,7 +13,7 @@ function Editor({ articleSlug }) {
   const dispatch = useDispatch();
   const [inputTag, setInputTag] = useState();
   const [tags, setTags] = useState([]);
-  const [tagsToShow, setTagsToShow] = useState([]);
+  // const [tagsToShow, setTagsToShow] = useState([]);
   const [article, setArticle] = useState(null);
 
   const [state, forceUpdate] = useReducer((x) => x + 1, 0);
@@ -32,7 +32,7 @@ function Editor({ articleSlug }) {
 
   useEffect(() => {
     if (article) {
-      setTagsToShow(article.tagList);
+      setTags(article.tagList);
     }
   }, [article]);
 
@@ -43,7 +43,7 @@ function Editor({ articleSlug }) {
         title: event.target.title.value,
         description: event.target.description.value,
         body: event.target.body.value,
-        tagList: !inputTag ? tagsToShow : tagsToShow.concat(inputTag),
+        tagList: !inputTag ? tags : tags.concat(inputTag),
       },
     };
     if (!articleSlug) {
@@ -63,10 +63,10 @@ function Editor({ articleSlug }) {
   };
 
   const removeTag = (tag) => {
-    setTagsToShow(tagsToShow.filter((t) => t !== tag));
+    setTags(tags.filter((t) => t !== tag));
   };
-  
-  const tagsToShow
+
+  const tagsToShow = tags || null;
   return (
     <div className="editor-page">
       <div className="container page">
