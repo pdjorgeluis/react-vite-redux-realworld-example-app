@@ -12,6 +12,7 @@ import Register from "./pages/Register";
 import Article from "./pages/Article";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
+import ProfileFavorites from "./pages/ProfileFavorites";
 import Editor from "./pages/Editor";
 
 function App() {
@@ -25,9 +26,13 @@ function App() {
   const articleMatch = useMatch("/article/:slug");
   const profileMatch = useMatch("/:username");
   const editorMatch = useMatch("/editor/:slug");
+  const profilefavoritesMatch = useMatch("/:username/favorites");
 
   const articleSlug = articleMatch ? articleMatch.params.slug : null;
   const profileUsername = profileMatch ? profileMatch.params.username : null;
+  const profileFavoritesUsername = profilefavoritesMatch
+    ? profilefavoritesMatch.params.username
+    : null;
   const editorSlug = editorMatch ? editorMatch.params.slug : null;
 
   return (
@@ -46,6 +51,17 @@ function App() {
           <Route
             path="/:username"
             element={<Profile username={profileUsername} user={user} />}
+          />
+        )}
+        {user && (
+          <Route
+            path="/:username/favorites"
+            element={
+              <ProfileFavorites
+                username={profileFavoritesUsername}
+                user={user}
+              />
+            }
           />
         )}
         <Route path="/editor" element={<Editor />} />

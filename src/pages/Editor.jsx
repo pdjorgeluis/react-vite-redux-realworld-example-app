@@ -35,6 +35,9 @@ function Editor({ articleSlug }) {
       },
     };
     try {
+      // If articleSlug was NOT passed to the Editor component, Publish button
+      // will create a new article and redirect to owner's profile.
+      // If articleSlug is passed then Editor component is for edit/update article.
       if (!articleSlug) {
         const createdArticle = await articleService.create(newArticle);
         navigate(`/${createdArticle.article.author.username}`);

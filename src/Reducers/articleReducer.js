@@ -64,14 +64,15 @@ export const favoriteAnArticle = (slug, scope) => async (dispatch) => {
   }
 };
 
-export const unfavoriteAnArticle = (slug, scope) => async (dispatch) => {
+export const unfavoriteAnArticleAndRemove = (slug) => async (dispatch) => {
   const updatedArticle = await articleService.unfavoriteArticle(slug);
-  if (scope === "FAV") {
-    console.log("unfavorited in preview");
-    dispatch(removeArticle(updatedArticle));
-  } else {
-    dispatch(updateArticle(updatedArticle));
-  }
+  dispatch(removeArticle(updatedArticle));
+};
+
+export const unfavoriteAnArticleAndUpdate = (slug) => async (dispatch) => {
+  const updatedArticle = await articleService.unfavoriteArticle(slug);
+
+  dispatch(updateArticle(updatedArticle));
 };
 
 export const createArticle = (article) => async (dispatch) => {

@@ -7,28 +7,26 @@ import { initializeArticles } from "../reducers/articleReducer";
 
 function Profile({ username, user }) {
   const [profile, setProfile] = useState(null);
-  const [offset, setOffset] = useState(0);
-
-  /* const [filter, setFilter] = useState({
-    //feed: "MY",
+  const [filter, setFilter] = useState({
+    feed: "MY",
     params: { offset: 0, author: username },
-  }); */
-
-  const dispatch = useDispatch();
-
-  // Article's list is initialized depending of selected tabs My Articles and Favorited Articles
-  useEffect(() => {
-    dispatch(initializeArticles({ offset, author: username }, user));
-  }, [offset, user]);
+  });
 
   const articlesCount = useSelector((state) => state.articles.articlesCount);
   const limit = 10;
   const pages = Math.ceil(articlesCount / limit);
 
+  const dispatch = useDispatch();
+
+  // Article's list is initialized depending of selected tabs My Articles and Favorited Articles
+  useEffect(() => {
+    dispatch(initializeArticles(filter.params, user));
+  }, [filter, user]);
+
   useEffect(() => {
     profileServices.getUserProfile(username, user).then((prof) => {
       setProfile(prof.profile);
-      setOffset(0);
+      setFilter({ feed: "MY", params: { offset: 0, author: username } });
     });
   }, [username, user]);
 
@@ -44,7 +42,7 @@ function Profile({ username, user }) {
     }
   };
 
-  /* const handleMyFeedClick = () => {
+  const handleMyFeedClick = () => {
     setFilter({
       feed: "MY",
       params: { ...filter.params, author: username, favorited: null },
@@ -56,7 +54,7 @@ function Profile({ username, user }) {
       feed: "FAV",
       params: { ...filter.params, favorited: username, author: null },
     });
-  }; */
+  };
 
   if (!profile) {
     return null;
@@ -109,30 +107,47 @@ function Profile({ username, user }) {
             <div className="articles-toggle">
               <ul className="nav nav-pills outline-active">
                 <li className="nav-item">
-                  <Link className="nav-link active" to="">
+                  <button
+                    className={`nav-link ${filter.feed === "MY" ? "active" : ""}`}
+                    type="button"
+                    onClick={handleMyFeedClick}
+                  >
                     My Articles
-                  </Link>
+                  </button>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to={`/${username}/favorites`}>
+                  <button
+                    className={`nav-link ${filter.feed === "FAV" ? "active" : ""}`}
+                    type="button"
+                    onClick={handleFavoritedFeedClick}
+                  >
                     Favorited Articles
-                  </Link>
+                  </button>
                 </li>
               </ul>
             </div>
 
-            <ArticlesList />
+            <ArticlesList scope={filter.feed} />
 
             <ul className="pagination">
               {Array.from({ length: pages }, (v, i) => (
                 <li
-                  className={offset === i ? "page-item active" : "page-item"}
+                  className={
+                    filter.params.offset === i
+                      ? "page-item active"
+                      : "page-item"
+                  }
                   key={i}
                 >
                   <button
                     className="page-link"
                     type="button"
-                    onClick={() => setOffset(i * limit)}
+                    onClick={() =>
+                      setFilter({
+                        ...filter,
+                        params: { ...filter.params, offset: i * limit },
+                      })
+                    }
                   >
                     {i + 1}
                   </button>

@@ -1,24 +1,24 @@
-import React, { useEffect, useState, useReducer } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import profileServices from "../services/profiles";
 import ArticlesList from "../components/ArticlesList";
 import { initializeArticles } from "../reducers/articleReducer";
 
-function Profile({ username, user }) {
+function ProfileFavorites({ username, user }) {
   const [profile, setProfile] = useState(null);
   const [offset, setOffset] = useState(0);
 
   /* const [filter, setFilter] = useState({
-    //feed: "MY",
-    params: { offset: 0, author: username },
+    feed: "FV",
+    params: { offset: 0, favorited: username },
   }); */
 
   const dispatch = useDispatch();
 
   // Article's list is initialized depending of selected tabs My Articles and Favorited Articles
   useEffect(() => {
-    dispatch(initializeArticles({ offset, author: username }, user));
+    dispatch(initializeArticles({ offset, favorited: username }, user));
   }, [offset, user]);
 
   const articlesCount = useSelector((state) => state.articles.articlesCount);
@@ -109,19 +109,19 @@ function Profile({ username, user }) {
             <div className="articles-toggle">
               <ul className="nav nav-pills outline-active">
                 <li className="nav-item">
-                  <Link className="nav-link active" to="">
+                  <Link className="nav-link" to={`/${username}`}>
                     My Articles
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to={`/${username}/favorites`}>
+                  <Link className="nav-link active" to="">
                     Favorited Articles
                   </Link>
                 </li>
               </ul>
             </div>
 
-            <ArticlesList />
+            <ArticlesList scope="FAV" />
 
             <ul className="pagination">
               {Array.from({ length: pages }, (v, i) => (
@@ -146,4 +146,4 @@ function Profile({ username, user }) {
   );
 }
 
-export default Profile;
+export default ProfileFavorites;

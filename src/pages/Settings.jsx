@@ -17,6 +17,7 @@ function Settings() {
     navigate("/");
   };
 
+  // Update user data
   const handleUpdateClick = async (event) => {
     event.preventDefault();
     setErrorMessages(null);

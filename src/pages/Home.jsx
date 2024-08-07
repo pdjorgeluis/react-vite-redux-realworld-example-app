@@ -30,6 +30,7 @@ function Home() {
     tagsService.getAll().then((fetchedTags) => setTags(fetchedTags.tags));
   }, []);
 
+  // Handles what list of articles will be shown
   useEffect(() => {
     switch (filter.feed) {
       case "GLOBAL": {

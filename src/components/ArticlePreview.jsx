@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   favoriteAnArticle,
-  unfavoriteAnArticle,
+  unfavoriteAnArticleAndRemove,
+  unfavoriteAnArticleAndUpdate,
 } from "../reducers/articleReducer";
 
 function ArticlePreview({ article, scope }) {
@@ -14,10 +15,12 @@ function ArticlePreview({ article, scope }) {
     if (user.username !== article.author.username) {
       try {
         if (article.favorited === false) {
-          dispatch(favoriteAnArticle(article.slug, scope));
-        } else {
-          dispatch(unfavoriteAnArticle(article.slug, scope));
-        }
+          dispatch(favoriteAnArticle(article.slug));
+        } else if (scope === "FAV") {
+            dispatch(unfavoriteAnArticleAndRemove(article.slug));
+          } else {
+            dispatch(unfavoriteAnArticleAndUpdate(article.slug));
+          }
       } catch (error) {
         console.log(error);
       }

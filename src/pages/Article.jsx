@@ -6,7 +6,7 @@ import profileServices from "../services/profiles";
 
 import {
   favoriteAnArticle,
-  unfavoriteAnArticle,
+  unfavoriteAnArticleAndUpdate,
   deleteArticle,
 } from "../reducers/articleReducer";
 import {
@@ -17,7 +17,7 @@ import {
 import Comment from "../components/Comment";
 
 function Article({ articleSlug, user }) {
-  const articleList = useSelector((state) => state.articles.articles);
+  // const articleList = useSelector((state) => state.articles.articles);
   const commentList = useSelector((state) => state.comments.comments);
 
   const [article, setArticle] = useState(null);
@@ -27,6 +27,7 @@ function Article({ articleSlug, user }) {
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
   const navigate = useNavigate();
 
+  // Fetch Article by slug and Profile of the author
   useEffect(() => {
     if (articleSlug) {
       articleService.getBySlug(articleSlug, user).then((art) => {
@@ -37,7 +38,7 @@ function Article({ articleSlug, user }) {
         dispatch(initComments(articleSlug, user));
       });
     }
-  }, [user, articleSlug, articleList]);
+  }, [user, articleSlug]);
 
   const handleFollowCLick = async () => {
     if (profile.following === false) {
@@ -55,7 +56,7 @@ function Article({ articleSlug, user }) {
     if (article.favorited === false) {
       dispatch(favoriteAnArticle(article.slug));
     } else {
-      dispatch(unfavoriteAnArticle(article.slug));
+      dispatch(unfavoriteAnArticleAndUpdate(article.slug));
     }
     forceUpdate();
   };
