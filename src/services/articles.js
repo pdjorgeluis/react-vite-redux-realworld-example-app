@@ -20,7 +20,7 @@ const getAll = (params, user) => {
   return request.then((response) => response.data);
 };
 
-const getByTag = (tag, params) => {
+const getByTag = (params) => {
   const request = axios.get(baseUrl, { params });
   return request.then((response) => response.data);
 };

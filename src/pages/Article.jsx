@@ -17,7 +17,6 @@ import {
 import Comment from "../components/Comment";
 
 function Article({ articleSlug, user }) {
-  // const articleList = useSelector((state) => state.articles.articles);
   const commentList = useSelector((state) => state.comments.comments);
 
   const [article, setArticle] = useState(null);

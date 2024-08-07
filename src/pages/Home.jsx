@@ -32,6 +32,8 @@ function Home() {
 
   // Handles what list of articles will be shown
   useEffect(() => {
+    console.log("filter in effect", filter);
+
     switch (filter.feed) {
       case "GLOBAL": {
         dispatch(initializeArticles(filter.params, user));
@@ -52,6 +54,7 @@ function Home() {
 
   const handleTagClick = (t) => {
     setFilter({ tag: t, feed: "TAG", params: { offset: 0 } });
+    console.log(t);
   };
 
   const handleGlobalFeedClick = () => {

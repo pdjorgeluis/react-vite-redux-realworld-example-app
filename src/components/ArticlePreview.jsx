@@ -12,15 +12,15 @@ function ArticlePreview({ article, scope }) {
   const user = useSelector((state) => state.loggedUser.user);
 
   const handleFavouriteClick = () => {
-    if (user.username !== article.author.username) {
+    if (user && user.username !== article.author.username) {
       try {
         if (article.favorited === false) {
           dispatch(favoriteAnArticle(article.slug));
         } else if (scope === "FAV") {
-            dispatch(unfavoriteAnArticleAndRemove(article.slug));
-          } else {
-            dispatch(unfavoriteAnArticleAndUpdate(article.slug));
-          }
+          dispatch(unfavoriteAnArticleAndRemove(article.slug));
+        } else {
+          dispatch(unfavoriteAnArticleAndUpdate(article.slug));
+        }
       } catch (error) {
         console.log(error);
       }
