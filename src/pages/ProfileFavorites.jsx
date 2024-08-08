@@ -5,7 +5,9 @@ import profileServices from "../services/profiles";
 import ArticlesList from "../components/ArticlesList";
 import { initializeArticles } from "../reducers/articleReducer";
 
-function ProfileFavorites({ username, user }) {
+function ProfileFavorites({ username }) {
+  const user = useSelector((state) => state.loggedUser.user);
+  // Check if needed to ask for user below
   const [profile, setProfile] = useState(null);
   const [offset, setOffset] = useState(0);
 

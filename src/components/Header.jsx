@@ -1,7 +1,10 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
-function Header({ user }) {
+function Header() {
+  const user = useSelector((state) => state.loggedUser.user);
+  // Check if need to ask for user below
   return !user ? (
     <nav className="navbar navbar-light">
       <div className="container">
@@ -62,3 +65,4 @@ function Header({ user }) {
 }
 
 export default Header;
+

@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
@@ -17,18 +19,25 @@ function Home() {
   const limit = 10;
   const pages = Math.ceil(articlesCount / limit);
   const [page, setPage] = useState(0);
-  const [tags, setTags] = useState([]);
+  // const [tags, setTags] = useState([]);
   const [filter, setFilter] = useState({
     tag: "",
     feed: "GLOBAL",
     params: { offset: 0 },
   });
 
+  const { isLoading, isError, data, error } = useQuery({
+    queryKey: ["tags"],
+    queryFn: tagsService.getAll,
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+
   const dispatch = useDispatch();
 
-  useEffect(() => {
+  /* useEffect(() => {
     tagsService.getAll().then((fetchedTags) => setTags(fetchedTags.tags));
-  }, []);
+  }, []); */
 
   // Handles what list of articles will be shown
   useEffect(() => {
@@ -51,6 +60,22 @@ function Home() {
         break;
     }
   }, [filter, page, user]);
+
+  if (isLoading) {
+    return <div>loading data...</div>;
+  }
+
+  if (isError) {
+    return (
+      <span>
+        blogs service is not available due to problems in server
+        <br />
+        Error: {error.message}
+      </span>
+    );
+  }
+
+  const tags = data ? data.tags : null;
 
   const handleTagClick = (t) => {
     setFilter({ tag: t, feed: "TAG", params: { offset: 0 } });

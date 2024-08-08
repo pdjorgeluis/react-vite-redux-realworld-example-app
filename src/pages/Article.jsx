@@ -16,7 +16,9 @@ import {
 } from "../reducers/commentReducer";
 import Comment from "../components/Comment";
 
-function Article({ articleSlug, user }) {
+function Article({ articleSlug }) {
+  const user = useSelector((state) => state.loggedUser.user);
+  // Check if needed to ask for user below
   const commentList = useSelector((state) => state.comments.comments);
 
   const [article, setArticle] = useState(null);

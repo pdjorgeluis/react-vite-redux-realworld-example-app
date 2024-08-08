@@ -1,57 +1,81 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { Link, useNavigate } from "react-router-dom";
 import articleService from "../services/articles";
 import Notifications from "../components/Notifications";
 
 function Editor({ articleSlug }) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const [inputTag, setInputTag] = useState();
+  const [inputTag, setInputTag] = useState("");
   const [tags, setTags] = useState([]);
+  const [errors, setErrors] = useState(null);
 
-  const [article, setArticle] = useState(null);
-  const [error, setError] = useState(null);
+  const { status, fetchStatus, data, error } = useQuery({
+    queryKey: ["article", articleSlug],
+    queryFn: async () => {
+      const result = await articleService.getBySlug(articleSlug);
+      setTags(result.article.tagList);
+      return result;
+    },
+    refetchOnWindowFocus: false,
+    retry: 1,
+    enabled: !!articleSlug,
+  });
 
-  useEffect(() => {
-    if (articleSlug) {
-      articleService.getBySlug(articleSlug).then((a) => {
-        setArticle(a.article);
-        setTags(a.article.tagList);
-      });
-    }
-    return () => setTags([]);
-  }, [articleSlug]);
+  const createArticleMutation = useMutation({
+    mutationFn: articleService.create,
+    onSuccess: (newArticle) => {
+      navigate(`/${newArticle.article.author.username}`);
+    },
+    onError: (exception) => setErrors(exception),
+  });
+
+  const updateArticleMutation = useMutation({
+    mutationFn: articleService.update,
+    onSuccess: (newArticle) => {
+      queryClient.setQueryData(["article"], newArticle);
+      setTags(newArticle.article.tagList);
+      setInputTag("");
+    },
+  });
+
+  if (status === "pending" && fetchStatus === "fetching") {
+    return <span>Loading...</span>;
+  }
+
+  if (status === "error") {
+    return <span>Error: {error.message}</span>;
+  }
+
+  const article = data ? data.article : null;
 
   const handlePublish = async (event) => {
-    setError(null);
+    setErrors(null);
     event.preventDefault();
-    const newArticle = {
-      article: {
-        title: event.target.title.value,
-        description: event.target.description.value,
-        body: event.target.body.value,
-        tagList: !inputTag ? tags : tags.concat(inputTag),
-      },
-    };
-    try {
-      // If articleSlug was NOT passed to the Editor component, Publish button
-      // will create a new article and redirect to owner's profile.
-      // If articleSlug is passed then Editor component is for edit/update article.
-      if (!articleSlug) {
-        const createdArticle = await articleService.create(newArticle);
-        navigate(`/${createdArticle.article.author.username}`);
-      } else {
-        const updatedArticle = await articleService.update(
-          articleSlug,
-          newArticle
-        );
-        setArticle(updatedArticle.article);
-        setTags(updatedArticle.article.tagList);
-      }
-      setInputTag("");
-    } catch (exception) {
-      setError(exception);
+    if (!articleSlug) {
+      const newArticle = {
+        article: {
+          title: event.target.title.value,
+          description: event.target.description.value,
+          body: event.target.body.value,
+          tagList: !inputTag ? tags : tags.concat(inputTag),
+        },
+      };
+      createArticleMutation.mutate(newArticle);
+    } else {
+      const newArticle = {
+        article: {
+          slug: articleSlug,
+          title: event.target.title.value,
+          description: event.target.description.value,
+          body: event.target.body.value,
+          tagList: !inputTag ? tags : tags.concat(inputTag),
+        },
+      };
+      updateArticleMutation.mutate(newArticle);
     }
   };
 
@@ -68,7 +92,7 @@ function Editor({ articleSlug }) {
       <div className="container page">
         <div className="row">
           <div className="col-md-10 offset-md-1 col-xs-12">
-            <Notifications error={error} />
+            <Notifications error={errors} />
 
             <form onSubmit={handlePublish}>
               <fieldset>
@@ -117,8 +141,9 @@ function Editor({ articleSlug }) {
                           className="tag-default tag-pill"
                           to=""
                           onClick={() => removeTag(t)}
+                          key={t}
                         >
-                          <i className="ion-close-round" key={t} />
+                          <i className="ion-close-round" />
                           {t}
                         </Link>
                       ))}

@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+
 import { Route, Routes, useMatch } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { initializeUser } from "./reducers/userReducer";
@@ -16,7 +17,7 @@ import ProfileFavorites from "./pages/ProfileFavorites";
 import Editor from "./pages/Editor";
 
 function App() {
-  const user = useSelector((state) => state.loggedUser.user);
+  // const user = useSelector((state) => state.loggedUser.user);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -37,33 +38,24 @@ function App() {
 
   return (
     <div>
-      <Header user={user} />
+      <Header />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route
           path="/article/:slug"
-          element={<Article articleSlug={articleSlug} user={user} />}
+          element={<Article articleSlug={articleSlug} />}
         />
         <Route path="/settings" element={<Settings />} />
-        {user && (
-          <Route
-            path="/:username"
-            element={<Profile username={profileUsername} user={user} />}
-          />
-        )}
-        {user && (
-          <Route
-            path="/:username/favorites"
-            element={
-              <ProfileFavorites
-                username={profileFavoritesUsername}
-                user={user}
-              />
-            }
-          />
-        )}
+        <Route
+          path="/:username"
+          element={<Profile username={profileUsername} />}
+        />
+        <Route
+          path="/:username/favorites"
+          element={<ProfileFavorites username={profileFavoritesUsername} />}
+        />
         <Route path="/editor" element={<Editor />} />
         <Route
           path="/editor/:slug"
