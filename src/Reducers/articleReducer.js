@@ -43,25 +43,22 @@ export const setArticlesByFeed = (offset) => async (dispatch) => {
   dispatch(setArticles(articles));
 };
 
-export const setArticlesByTag = (offset, tag, user) => async (dispatch) => {
+export const setArticlesByTag = (offset, tag) => async (dispatch) => {
   if (tag !== "") {
-    const articles = await articleService.getByTag(tag, offset);
+    const articles = await articleService.getByTag({ tag, offset });
     dispatch(setArticles(articles));
   } else {
-    dispatch(initializeArticles(offset, user));
+    // dispatch(initializeArticles(offset, user));
   }
 };
 
-export const getArticleBySlug = (slug) => async () =>
-  articleService.getBySlug(slug);
+/* export const getArticleBySlug = (slug) => async () =>
+  articleService.getBySlug(slug); */
 
-export const favoriteAnArticle = (slug, scope) => async (dispatch) => {
+export const favoriteAnArticle = (slug) => async (dispatch) => {
   const updatedArticle = await articleService.favoriteArticle(slug);
-  if (scope === "FAV") {
-    dispatch(appendArticle(updatedArticle));
-  } else {
-    dispatch(updateArticle(updatedArticle));
-  }
+
+  dispatch(updateArticle(updatedArticle));
 };
 
 export const unfavoriteAnArticleAndRemove = (slug) => async (dispatch) => {
@@ -75,21 +72,19 @@ export const unfavoriteAnArticleAndUpdate = (slug) => async (dispatch) => {
   dispatch(updateArticle(updatedArticle));
 };
 
-export const createArticle = (article) => async (dispatch) => {
+export const createArticle = (article) => async () => {
   const newArticle = await articleService.create(article);
   // dispatch(appendArticle(newArticle.article));
   return newArticle;
 };
 
-export const update = (slug, article) => async (dispatch) => {
+export const update = (slug, article) => async () => {
   const newArticle = await articleService.update(slug, article);
-  console.log("article in reducer", newArticle);
-
   // dispatch(updateArticle(newArticle.article));
   return newArticle;
 };
 
-export const deleteArticle = (slug) => async (dispatch) => {
+export const deleteArticle = (slug) => async () => {
   await articleService.deleteArticle(slug);
   // dispatch(removeArticle(slug))
 };
