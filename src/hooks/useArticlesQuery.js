@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useReducer } from "react";
 import articleService from "../services/articles";
 
 const selectGet = (filter, user) => {
@@ -29,20 +28,6 @@ const selectGet = (filter, user) => {
 
 const useArticlesQuery = (filter, user) => {
   const { getFunction, keys } = selectGet(filter, user);
-
-  /* const [getFunction, getFunctionDispatch] = useReducer(
-    queryReducer,
-    articleService.getAll
-  );
-
-  const setArticlesQuery = useCallback(() => {
-    getFunctionDispatch({ type: filter.feed });
-    console.log("fn", getFunction);
-  }, [filter]);
-
-  useEffect(() => {
-    setArticlesQuery();
-  }, [setArticlesQuery]); */
 
   const queryResult = useQuery({
     queryKey: ["articles", { filter }, { user }],

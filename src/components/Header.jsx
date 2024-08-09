@@ -3,9 +3,10 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import useCurrentUser from "../hooks/useCurrentUser";
 
-function Header() {
+function Header({ currentUser }) {
   // const user = useSelector((state) => state.loggedUser.user);
-  const { currentUser } = useCurrentUser();
+  // const { currentUser } = useCurrentUser();
+  console.log("currentUser in header", currentUser);
 
   if (!currentUser.user) {
     return (

@@ -3,17 +3,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setUser, updateSettings } from "../reducers/userReducer";
 import Notification from "../components/Notifications";
+import useCurrentUser from "../hooks/useCurrentUser";
 
-function Settings() {
-  const user = useSelector((state) => state.loggedUser.user);
+function Settings({ currentUser, logOutUser }) {
+  // PASS USER FROM HEADER
+  // const user = useSelector((state) => state.loggedUser.user);
+  // const { currentUser, logOutUser } = useCurrentUser();
   const [errorMessages, setErrorMessages] = useState([]);
-
+  console.log("currentUser in settings", currentUser);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleLogOut = () => {
     window.localStorage.removeItem("loggedAppUser");
-    dispatch(setUser({ user: null }));
+    // dispatch(setUser({ user: null }));
+    // logOutUser();
+
     navigate("/");
   };
 
@@ -40,7 +45,7 @@ function Settings() {
 
   return (
     <div className="settings-page">
-      {user && (
+      {currentUser.user && (
         <div className="container page">
           <div className="row">
             <div className="col-md-6 offset-md-3 col-xs-12">
@@ -56,7 +61,7 @@ function Settings() {
                       type="text"
                       name="image"
                       placeholder="URL of profile picture"
-                      defaultValue={user.image}
+                      defaultValue={currentUser.user.image}
                     />
                   </fieldset>
                   <fieldset className="form-group">
@@ -65,7 +70,7 @@ function Settings() {
                       type="text"
                       name="username"
                       placeholder="Your Name"
-                      defaultValue={user.username}
+                      defaultValue={currentUser.user.username}
                     />
                   </fieldset>
                   <fieldset className="form-group">
@@ -74,7 +79,7 @@ function Settings() {
                       rows="8"
                       name="bio"
                       placeholder="Short bio about you"
-                      defaultValue={user.bio}
+                      defaultValue={currentUser.user.bio}
                     />
                   </fieldset>
                   <fieldset className="form-group">
@@ -83,7 +88,7 @@ function Settings() {
                       type="text"
                       name="email"
                       placeholder="Email"
-                      defaultValue={user.email}
+                      defaultValue={currentUser.user.email}
                     />
                   </fieldset>
                   <fieldset className="form-group">

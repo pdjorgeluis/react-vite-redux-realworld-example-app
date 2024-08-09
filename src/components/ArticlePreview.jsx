@@ -6,12 +6,13 @@ import {
   unfavoriteAnArticleAndRemove,
   unfavoriteAnArticleAndUpdate,
 } from "../reducers/articleReducer";
+import useArticleUpdateMutation from "../hooks/useArticleMutation";
 
-function ArticlePreview({ article, scope }) {
+function ArticlePreview({ article, scope, user }) {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.loggedUser.user);
+  // const user = useSelector((state) => state.loggedUser.user);
 
-  const handleFavouriteClick = () => {
+  /* const handleFavouriteClick = () => {
     if (user && user.username !== article.author.username) {
       try {
         if (article.favorited === false) {
@@ -20,6 +21,30 @@ function ArticlePreview({ article, scope }) {
           dispatch(unfavoriteAnArticleAndRemove(article.slug));
         } else {
           dispatch(unfavoriteAnArticleAndUpdate(article.slug));
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }; */
+  const { articleMutation: favoriteMutation, updatedArticle: a1 } =
+    useArticleUpdateMutation("FAVORITE", "articles");
+  const { articleMutation: unfavoriteMutation, updatedArticle: a2 } =
+    useArticleUpdateMutation("UNFAVORITE", "articles");
+  // console.log("art mutation", unfavoriteMutation);
+
+  const handleFavouriteClick = () => {
+    if (user && user.username !== article.author.username) {
+      try {
+        if (article.favorited === false) {
+          favoriteMutation.mutate(article.slug);
+          // dispatch(favoriteAnArticle(article.slug));
+        } else if (scope === "FAV") {
+          // In this one pass queryKey for updating list of favorited
+          dispatch(unfavoriteAnArticleAndRemove(article.slug));
+        } else {
+          unfavoriteMutation.mutate(article.slug);
+          // dispatch(unfavoriteAnArticleAndUpdate(article.slug));
         }
       } catch (error) {
         console.log(error);
@@ -71,3 +96,4 @@ function ArticlePreview({ article, scope }) {
 }
 
 export default ArticlePreview;
+

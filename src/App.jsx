@@ -9,7 +9,7 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-
+import useCurrentUser from "./hooks/useCurrentUser";
 import Article from "./pages/Article";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
@@ -19,11 +19,13 @@ import Editor from "./pages/Editor";
 function App() {
   // const user = useSelector((state) => state.loggedUser.user);
   const dispatch = useDispatch();
-
+  const { currentUser, logOutUser } = useCurrentUser();
+  console.log("currentUser in app", currentUser);
+  /*
   useEffect(() => {
     dispatch(initializeUser());
   }, []);
-
+*/
   const articleMatch = useMatch("/article/:slug");
   const profileMatch = useMatch("/:username");
   const editorMatch = useMatch("/editor/:slug");
@@ -38,7 +40,7 @@ function App() {
 
   return (
     <div>
-      <Header />
+      <Header user={currentUser.user} />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -47,14 +49,22 @@ function App() {
           path="/article/:slug"
           element={<Article articleSlug={articleSlug} />}
         />
-        <Route path="/settings" element={<Settings />} />
+        <Route
+          path="/settings"
+          element={<Settings currentUser={currentUser} />}
+        />
         <Route
           path="/:username"
           element={<Profile username={profileUsername} />}
         />
         <Route
           path="/:username/favorites"
-          element={<ProfileFavorites username={profileFavoritesUsername} />}
+          element={
+            <ProfileFavorites
+              username={profileFavoritesUsername}
+              logOutUser={logOutUser}
+            />
+          }
         />
         <Route path="/editor" element={<Editor />} />
         <Route

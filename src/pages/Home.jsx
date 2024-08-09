@@ -17,7 +17,7 @@ import {
 function Home() {
   // const user = useSelector((state) => state.loggedUser.user);
   const { currentUser } = useCurrentUser();
-
+  console.log("currentUser in home", currentUser);
   // useCurrentUser()
   const [filter, setFilter] = useState({
     tag: "",
@@ -27,6 +27,8 @@ function Home() {
 
   const { queryResult } = useArticlesQuery(filter, currentUser);
   const articlesList = queryResult.data;
+
+  console.log("articles list", articlesList);
 
   const articlesCount = articlesList?.articlesCount || null; // useSelector((state) => state.articles.articlesCount);
   const limit = 10;
@@ -41,7 +43,7 @@ function Home() {
     retry: 1,
   });
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   /* useEffect(() => {
     tagsService.getAll().then((fetchedTags) => setTags(fetchedTags.tags));
@@ -149,7 +151,11 @@ function Home() {
                 </div>
               </ul>
             </div>
-            <ArticlesList scope="" articlesList={articlesList} />
+            <ArticlesList
+              scope=""
+              articlesList={articlesList}
+              user={currentUser}
+            />
 
             <ul className="pagination">
               {Array.from({ length: pages }, (v, i) => (

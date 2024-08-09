@@ -41,7 +41,6 @@ const getAllFeed = ({ params }) => {
     headers: { Authorization: token },
     params,
   };
-  console.log("DID IT!");
 
   const request = axios.get(`${baseUrl}/feed`, config);
   return request.then((response) => response.data);
