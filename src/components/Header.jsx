@@ -1,36 +1,42 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import useCurrentUser from "../hooks/useCurrentUser";
 
 function Header() {
-  const user = useSelector((state) => state.loggedUser.user);
-  // Check if need to ask for user below
-  return !user ? (
-    <nav className="navbar navbar-light">
-      <div className="container">
-        <Link className="navbar-brand" to="/">
-          conduit
-        </Link>
-        <ul className="nav navbar-nav pull-xs-right">
-          <li className="nav-item">
-            <Link className="nav-link active" to="/">
-              Home
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/login">
-              Sign in
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/register">
-              Sign up
-            </Link>
-          </li>
-        </ul>
-      </div>
-    </nav>
-  ) : (
+  // const user = useSelector((state) => state.loggedUser.user);
+  const { currentUser } = useCurrentUser();
+
+  if (!currentUser.user) {
+    return (
+      <nav className="navbar navbar-light">
+        <div className="container">
+          <Link className="navbar-brand" to="/">
+            conduit
+          </Link>
+          <ul className="nav navbar-nav pull-xs-right">
+            <li className="nav-item">
+              <Link className="nav-link active" to="/">
+                Home
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/login">
+                Sign in
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/register">
+                Sign up
+              </Link>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    );
+  }
+
+  return (
     <nav className="navbar navbar-light">
       <div className="container">
         <Link className="navbar-brand" to="/">
@@ -53,9 +59,13 @@ function Header() {
             </Link>
           </li>
           <li className="nav-item">
-            <Link to={`/${user.username}`} className="nav-link">
-              <img src={user.image} className="user-pic" alt={user.username} />
-              {user.username}
+            <Link to={`/${currentUser.user.username}`} className="nav-link">
+              <img
+                src={currentUser.user.image}
+                className="user-pic"
+                alt={currentUser.user.username}
+              />
+              {currentUser.user.username}
             </Link>
           </li>
         </ul>

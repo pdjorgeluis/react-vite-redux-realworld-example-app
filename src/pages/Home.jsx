@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-
+import useArticlesQuery from "../hooks/useArticlesQuery";
+// import { useCurrentUser } from "../hooks/useCurrentUser";
+import useCurrentUser from "../hooks/useCurrentUser";
 import tagsService from "../services/tags";
 import Banner from "../components/Banner";
 import ArticlesList from "../components/ArticlesList";
@@ -14,17 +15,24 @@ import {
 } from "../reducers/articleReducer";
 
 function Home() {
-  const user = useSelector((state) => state.loggedUser.user);
-  const articlesCount = useSelector((state) => state.articles.articlesCount);
-  const limit = 10;
-  const pages = Math.ceil(articlesCount / limit);
-  const [page, setPage] = useState(0);
-  // const [tags, setTags] = useState([]);
+  // const user = useSelector((state) => state.loggedUser.user);
+  const { currentUser } = useCurrentUser();
+
+  // useCurrentUser()
   const [filter, setFilter] = useState({
     tag: "",
     feed: "GLOBAL",
     params: { offset: 0 },
   });
+
+  const { queryResult } = useArticlesQuery(filter, currentUser);
+  const articlesList = queryResult.data;
+
+  const articlesCount = articlesList?.articlesCount || null; // useSelector((state) => state.articles.articlesCount);
+  const limit = 10;
+  const pages = Math.ceil(articlesCount / limit);
+  const [page, setPage] = useState(0);
+  // const [tags, setTags] = useState([]);
 
   const { isLoading, isError, data, error } = useQuery({
     queryKey: ["tags"],
@@ -40,16 +48,16 @@ function Home() {
   }, []); */
 
   // Handles what list of articles will be shown
-  useEffect(() => {
+  /* useEffect(() => {
     console.log("filter in effect", filter);
 
     switch (filter.feed) {
       case "GLOBAL": {
-        dispatch(initializeArticles(filter.params, user));
+        dispatch(initializeArticles(filter.params, currentUser.user));
         break;
       }
       case "TAG": {
-        dispatch(setArticlesByTag(filter.params, filter.tag, user));
+        dispatch(setArticlesByTag(filter.params, filter.tag, currentUser.user));
         break;
       }
       case "YOUR": {
@@ -59,7 +67,7 @@ function Home() {
       default:
         break;
     }
-  }, [filter, page, user]);
+  }, [currentUser]); // [filter, page, currentUser]); */
 
   if (isLoading) {
     return <div>loading data...</div>;
@@ -78,7 +86,7 @@ function Home() {
   const tags = data ? data.tags : null;
 
   const handleTagClick = (t) => {
-    setFilter({ tag: t, feed: "TAG", params: { offset: 0 } });
+    setFilter({ tag: t, feed: "TAG", params: { offset: 0, tag: t } });
     console.log(t);
   };
 
@@ -90,6 +98,14 @@ function Home() {
     setFilter({ tag: "", feed: "YOUR", params: { offset: 0 } });
   };
 
+  if (queryResult.isLoading) {
+    return <span>Loading...</span>;
+  }
+
+  if (queryResult.isError) {
+    return <span>Error: {queryResult.error.message}</span>;
+  }
+
   return (
     <div className="home-page">
       <Banner />
@@ -98,7 +114,7 @@ function Home() {
           <div className="col-md-9">
             <div className="feed-toggle">
               <ul className="nav nav-pills outline-active">
-                {user && (
+                {currentUser && (
                   <li className="nav-item">
                     <button
                       className={`nav-link ${filter.feed === "YOUR" ? "active" : ""}`}
@@ -133,7 +149,7 @@ function Home() {
                 </div>
               </ul>
             </div>
-            <ArticlesList />
+            <ArticlesList scope="" articlesList={articlesList} />
 
             <ul className="pagination">
               {Array.from({ length: pages }, (v, i) => (

@@ -8,7 +8,7 @@ const setToken = (newToken) => {
   token = `Bearer ${newToken}`;
 };
 
-const getAll = (params, user) => {
+const getAll = ({ params, user }) => {
   const config = user
     ? {
         headers: { Authorization: token },
@@ -20,7 +20,7 @@ const getAll = (params, user) => {
   return request.then((response) => response.data);
 };
 
-const getByTag = (params) => {
+const getByTag = ({ params }) => {
   const request = axios.get(baseUrl, { params });
   return request.then((response) => response.data);
 };
@@ -36,11 +36,12 @@ const getBySlug = (slug, user) => {
   return request.then((response) => response.data);
 };
 
-const getAllFeed = (params) => {
+const getAllFeed = ({ params }) => {
   const config = {
     headers: { Authorization: token },
     params,
   };
+  console.log("DID IT!");
 
   const request = axios.get(`${baseUrl}/feed`, config);
   return request.then((response) => response.data);
