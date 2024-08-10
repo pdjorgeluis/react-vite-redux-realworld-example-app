@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import articleService from "../services/articles";
 import profileServices from "../services/profiles";
+import useCurrentUser, { getLocalLoggedUser } from "../hooks/useCurrentUser";
+import useProfileQuery from "../hooks/useProfileQuery";
 
 import {
   favoriteAnArticle,
@@ -15,41 +17,63 @@ import {
   deleteComment,
 } from "../reducers/commentReducer";
 import Comment from "../components/Comment";
+import useSingleArticleQuery from "../hooks/useSingleArticleQuery";
+import useArticleUpdateMutation from "../hooks/useArticleMutation";
 
 function Article({ articleSlug }) {
-  const user = useSelector((state) => state.loggedUser.user);
+  // const user = useSelector((state) => state.loggedUser.user);
   // Check if needed to ask for user below
+  const currentUser = getLocalLoggedUser();
   const commentList = useSelector((state) => state.comments.comments);
 
-  const [article, setArticle] = useState(null);
-  const [profile, setProfile] = useState(null);
+  const {
+    isLoading: isArticleLoading,
+    isError: isArticleError,
+    data: article,
+    error: articleError,
+  } = useSingleArticleQuery(articleSlug);
+
+  const {
+    data: profile,
+    isLoading: isProfileLoading,
+    isError: isProfileError,
+    error: profileError,
+  } = useProfileQuery(article?.article.author.username, currentUser.user);
+
+  const { articleMutation: deleteMutation } = useArticleUpdateMutation(
+    "DELETE",
+    ["article", articleSlug]
+  );
+
+  // const [article, setArticle] = useState(null);
+  // const [profile, setProfile] = useState(null);
   const dispatch = useDispatch();
 
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
   const navigate = useNavigate();
 
   // Fetch Article by slug and Profile of the author
-  useEffect(() => {
+  /* useEffect(() => {
     if (articleSlug) {
-      articleService.getBySlug(articleSlug, user).then((art) => {
+      articleService.getBySlug(articleSlug, currentUser.user).then((art) => {
         setArticle(art.article);
         profileServices
-          .getUserProfile(art.article.author.username, user)
+          .getUserProfile(art.article.author.username, currentUser.user)
           .then((prof) => setProfile(prof.profile));
-        dispatch(initComments(articleSlug, user));
+        dispatch(initComments(articleSlug, currentUser.user));
       });
     }
-  }, [user, articleSlug]);
+  }, [currentUser.user, articleSlug]); */
 
   const handleFollowCLick = async () => {
     if (profile.following === false) {
       const updatedProfile = await profileServices.followUser(profile.username);
-      setProfile(updatedProfile.profile);
+      // setProfile(updatedProfile.profile);
     } else {
       const updatedProfile = await profileServices.unfollowUser(
         profile.username
       );
-      setProfile(updatedProfile.profile);
+      // setProfile(updatedProfile.profile);
     }
   };
 
@@ -65,12 +89,17 @@ function Article({ articleSlug }) {
   const handleDeleteCLick = () => {
     // eslint-disable-next-line no-alert
     if (window.confirm(`Remove article ${article.title}?`)) {
-      try {
+      deleteMutation.mutate(articleSlug, {
+        onSuccess: () => {
+          navigate(`/${currentUser.user.username}`);
+        },
+      });
+      /* try {
         dispatch(deleteArticle(articleSlug));
-        navigate(`/${user.username}`);
+        navigate(`/${currentUser.user.username}`);
       } catch (error) {
         console.log(error);
-      }
+      } */
     }
   };
 
@@ -89,27 +118,45 @@ function Article({ articleSlug }) {
   if (!article || !profile) {
     return <div>No article</div>;
   }
+
+  if (isArticleLoading || isProfileLoading) {
+    return <span>Loading...</span>;
+  }
+
+  if (isArticleError || isProfileError) {
+    return (
+      <>
+        <span>Error: {articleError.message}</span>
+        <span>Error: {profileError.message}</span>;
+      </>
+    );
+  }
+
   return (
     <div className="article-page">
       <div className="banner">
         <div className="container">
-          <h1>{article.title}</h1>
+          <h1>{article.article.title}</h1>
 
           <div className="article-meta">
-            <Link to={`/${profile.username}`}>
-              <img src={article.author.image} alt={article.author.username} />
+            <Link to={`/${profile.profile.username}`}>
+              <img
+                src={article.article.author.image}
+                alt={article.article.author.username}
+              />
             </Link>
             <div className="info">
-              <Link to={`/${profile.username}`} className="author">
-                {article.author.username}
+              <Link to={`/${profile.profile.username}`} className="author">
+                {article.article.author.username}
               </Link>
               <span className="date">
-                {new Date(article.createdAt).toDateString()}
+                {new Date(article.article.createdAt).toDateString()}
               </span>
             </div>
-            {user && (
+            {currentUser.user && (
               <div>
-                {user.username !== article.author.username && (
+                {currentUser.user.username !==
+                  article.article.author.username && (
                   <button
                     className="btn btn-sm btn-outline-secondary"
                     type="button"
@@ -120,12 +167,13 @@ function Article({ articleSlug }) {
                         profile.following ? "ion-minus-round" : "ion-plus-round"
                       }
                     />
-                    &nbsp; Follow {article.author.username}{" "}
+                    &nbsp; Follow {article.article.author.username}{" "}
                     <span className="counter">(10?)</span>
                   </button>
                 )}
                 &nbsp;
-                {user.username !== article.author.username && (
+                {currentUser.user.username !==
+                  article.article.author.username && (
                   <button
                     className="btn btn-sm btn-outline-primary"
                     type="button"
@@ -133,10 +181,13 @@ function Article({ articleSlug }) {
                   >
                     <i className="ion-heart" />
                     &nbsp; Favorite Post{" "}
-                    <span className="counter">{article.favoritesCount}</span>
+                    <span className="counter">
+                      {article.article.favoritesCount}
+                    </span>
                   </button>
                 )}
-                {user.username === article.author.username && (
+                {currentUser.user.username ===
+                  article.article.author.username && (
                   <Link
                     className="btn btn-sm btn-outline-secondary"
                     to={`/editor/${articleSlug}`}
@@ -144,7 +195,8 @@ function Article({ articleSlug }) {
                     <i className="ion-edit" /> Edit Article
                   </Link>
                 )}
-                {user.username === article.author.username && (
+                {currentUser.user.username ===
+                  article.article.author.username && (
                   <button
                     className="btn btn-sm btn-outline-danger"
                     type="button"
@@ -162,9 +214,9 @@ function Article({ articleSlug }) {
       <div className="container page">
         <div className="row article-content">
           <div className="col-md-12">
-            <p>{article.body}</p>
+            <p>{article.article.body}</p>
             <ul className="tag-list">
-              {article.tagList.map((tag) => (
+              {article.article.tagList.map((tag) => (
                 <li className="tag-default tag-pill tag-outline" key={tag}>
                   {tag}
                 </li>
@@ -175,7 +227,7 @@ function Article({ articleSlug }) {
 
         <hr />
 
-        {!user ? (
+        {!currentUser.user ? (
           <div className="article-actions">
             <Link>Sign in</Link> or <Link>sign up</Link> to add comments on this
             article.
@@ -186,19 +238,20 @@ function Article({ articleSlug }) {
               <div className="article-meta">
                 <Link to="profile.html">
                   <img
-                    src={article.author.image}
-                    alt={article.author.username}
+                    src={article.article.author.image}
+                    alt={article.article.author.username}
                   />
                 </Link>
                 <div className="info">
-                  <Link to={`/@${profile.username}`} className="author">
-                    {article.author.username}
+                  <Link to={`/@${profile.profile.username}`} className="author">
+                    {article.article.author.username}
                   </Link>
                   <span className="date">
-                    {new Date(article.createdAt).toDateString()}
+                    {new Date(article.article.createdAt).toDateString()}
                   </span>
                 </div>
-                {user.username !== article.author.username && (
+                {currentUser.user.username !==
+                  article.article.author.username && (
                   <button
                     className="btn btn-sm btn-outline-secondary"
                     type="button"
@@ -206,14 +259,17 @@ function Article({ articleSlug }) {
                   >
                     <i
                       className={
-                        profile.following ? "ion-minus-round" : "ion-plus-round"
+                        profile.profile.following
+                          ? "ion-minus-round"
+                          : "ion-plus-round"
                       }
                     />
-                    &nbsp; {article.author.username}{" "}
+                    &nbsp; {article.article.author.username}{" "}
                   </button>
                 )}
                 &nbsp;
-                {user.username !== article.author.username && (
+                {currentUser.user.username !==
+                  article.article.author.username && (
                   <button
                     className="btn btn-sm btn-outline-primary"
                     type="button"
@@ -221,10 +277,13 @@ function Article({ articleSlug }) {
                   >
                     <i className="ion-heart" />
                     &nbsp; Favorite Article{" "}
-                    <span className="counter">{article.favoritesCount}</span>
+                    <span className="counter">
+                      {article.article.favoritesCount}
+                    </span>
                   </button>
                 )}
-                {user.username === article.author.username && (
+                {currentUser.user.username ===
+                  article.article.author.username && (
                   <Link
                     className="btn btn-sm btn-outline-secondary"
                     to={`/editor/${articleSlug}`}
@@ -232,7 +291,8 @@ function Article({ articleSlug }) {
                     <i className="ion-edit" /> Edit Article
                   </Link>
                 )}
-                {user.username === article.author.username && (
+                {currentUser.user.username ===
+                  article.article.author.username && (
                   <button
                     className="btn btn-sm btn-outline-danger"
                     type="button"
@@ -260,9 +320,9 @@ function Article({ articleSlug }) {
                   </div>
                   <div className="card-footer">
                     <img
-                      src={user.image}
+                      src={currentUser.user.image}
                       className="comment-author-img"
-                      alt={user.username}
+                      alt={currentUser.user.username}
                     />
                     <button className="btn btn-sm btn-primary" type="submit">
                       Post Comment
@@ -274,7 +334,7 @@ function Article({ articleSlug }) {
                   <Comment
                     key={comment.id}
                     comment={comment}
-                    user={user}
+                    user={currentUser.user}
                     onClickButton={() => handleDeleteComment(comment)}
                   />
                 ))}

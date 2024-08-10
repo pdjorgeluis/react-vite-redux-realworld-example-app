@@ -11,7 +11,13 @@ const selectArticleMutation = (fn) => {
       return articleService.unfavoriteArticle;
     }
     case "UPDATE": {
-      return articleService.getAllFeed;
+      return articleService.update;
+    }
+    case "CREATE": {
+      return articleService.create;
+    }
+    case "DELETE": {
+      return articleService.deleteArticle;
     }
     default:
       return null;
@@ -28,7 +34,6 @@ const useArticleUpdateMutation = (fn, queryKey) => {
     onSuccess: (newArticle) => {
       queryClient.invalidateQueries(queryKey);
       setArticle(newArticle);
-      console.log(fn);
     },
     onError: (error) => console.log(error),
   });

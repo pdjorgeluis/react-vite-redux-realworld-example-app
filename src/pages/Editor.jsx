@@ -1,56 +1,47 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
 import { Link, useNavigate } from "react-router-dom";
-import articleService from "../services/articles";
+import useArticleUpdateMutation from "../hooks/useArticleMutation";
+
 import Notifications from "../components/Notifications";
+import useSingleArticleQuery from "../hooks/useSingleArticleQuery";
+import { getLocalLoggedUser } from "../hooks/useCurrentUser";
 
 function Editor({ articleSlug }) {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+
+  const { status, fetchStatus, data, error } =
+    useSingleArticleQuery(articleSlug);
+
+  const currentUser = getLocalLoggedUser();
 
   const [inputTag, setInputTag] = useState("");
   const [tags, setTags] = useState([]);
   const [errors, setErrors] = useState(null);
 
-  const { status, fetchStatus, data, error } = useQuery({
-    queryKey: ["article", articleSlug],
-    queryFn: async () => {
-      const result = await articleService.getBySlug(articleSlug);
-      setTags(result.article.tagList);
-      return result;
-    },
-    refetchOnWindowFocus: false,
-    retry: 1,
-    enabled: !!articleSlug,
-  });
+  useEffect(() => {
+    if (data) {
+      setTags(data.article.tagList);
+    }
+  }, [data]);
+  const article = articleSlug && data ? data.article : null;
 
-  const createArticleMutation = useMutation({
-    mutationFn: articleService.create,
-    onSuccess: (newArticle) => {
-      navigate(`/${newArticle.article.author.username}`);
-    },
-    onError: (exception) => setErrors(exception),
-  });
-
-  const updateArticleMutation = useMutation({
-    mutationFn: articleService.update,
-    onSuccess: (newArticle) => {
-      queryClient.setQueryData(["article"], newArticle);
-      setTags(newArticle.article.tagList);
-      setInputTag("");
-    },
-  });
+  const { articleMutation: updateMutation } = useArticleUpdateMutation(
+    "UPDATE",
+    ["article", articleSlug]
+  );
+  const { articleMutation: createMutation } = useArticleUpdateMutation(
+    "CREATE",
+    ["article", articleSlug]
+  );
 
   if (status === "pending" && fetchStatus === "fetching") {
     return <span>Loading...</span>;
   }
 
-  if (status === "error") {
+  if (articleSlug && status === "error") {
     return <span>Error: {error.message}</span>;
   }
-
-  const article = data ? data.article : null;
 
   const handlePublish = async (event) => {
     setErrors(null);
@@ -64,7 +55,11 @@ function Editor({ articleSlug }) {
           tagList: !inputTag ? tags : tags.concat(inputTag),
         },
       };
-      createArticleMutation.mutate(newArticle);
+      createMutation.mutate(newArticle, {
+        onSuccess: () => {
+          navigate(`/${currentUser.user.username}`);
+        },
+      });
     } else {
       const newArticle = {
         article: {
@@ -75,7 +70,8 @@ function Editor({ articleSlug }) {
           tagList: !inputTag ? tags : tags.concat(inputTag),
         },
       };
-      updateArticleMutation.mutate(newArticle);
+      updateMutation.mutate(newArticle);
+      setInputTag("");
     }
   };
 
