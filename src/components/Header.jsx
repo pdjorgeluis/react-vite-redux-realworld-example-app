@@ -2,11 +2,9 @@ import React from "react";
 import { Link } from "react-router-dom";
 import useCurrentUser, { getLocalLoggedUser } from "../hooks/useCurrentUser";
 
-let counter = 0;
 function Header() {
   // const { currentUser } = useCurrentUser();
   const currentUser = getLocalLoggedUser();
-  console.log("rendered Header", (counter += 1), currentUser);
 
   if (!currentUser.user) {
     return (

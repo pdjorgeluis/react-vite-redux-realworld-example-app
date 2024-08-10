@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ArticlesList from "../components/ArticlesList";
 import { getLocalLoggedUser } from "../hooks/useCurrentUser";
@@ -27,6 +27,10 @@ function Profile({ username }) {
     feed: "GLOBAL",
     params: { offset: 0, author: username },
   });
+
+  useEffect(() => {
+    setFilter({ ...filter, params: { ...filter.params, author: username } });
+  }, [username]);
 
   const { queryResult } = useArticlesQuery(filter, currentUser);
   const articlesList = queryResult.data;

@@ -34,7 +34,6 @@ const useArticlesQuery = (filter, user) => {
     queryFn: () => getFunction(keys),
     refetchOnWindowFocus: false,
   });
-  console.log("query in useArticlesQuery", queryResult.data);
 
   return { queryResult };
 };
