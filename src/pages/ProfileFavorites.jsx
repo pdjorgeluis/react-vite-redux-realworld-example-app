@@ -5,29 +5,57 @@ import profileServices from "../services/profiles";
 import ArticlesList from "../components/ArticlesList";
 import { initializeArticles } from "../reducers/articleReducer";
 
+import { getLocalLoggedUser } from "../hooks/useCurrentUser";
+import useArticlesQuery from "../hooks/useArticlesQuery";
+import useProfileQuery from "../hooks/useProfileQuery";
+import useProfileMutation from "../hooks/useProfileMutation";
+
 function ProfileFavorites({ username }) {
-  const user = useSelector((state) => state.loggedUser.user);
+  // const user = useSelector((state) => state.loggedUser.user);
   // Check if needed to ask for user below
-  const [profile, setProfile] = useState(null);
-  const [offset, setOffset] = useState(0);
+  // const [profile, setProfile] = useState(null);
+
+  const currentUser = getLocalLoggedUser();
+  const {
+    data: profile,
+    isLoading: isProfileLoading,
+    isError: isProfileError,
+    error: profileError,
+  } = useProfileQuery(username, currentUser.user);
+
+  const { fallowUserMutation, unfallowUserMutation } = useProfileMutation(
+    profile?.profile.username,
+    ["profile", username, currentUser.user]
+  );
+
+  // const [offset, setOffset] = useState(0);
+
+  const [filter, setFilter] = useState({
+    tag: "",
+    feed: "GLOBAL",
+    params: { offset: 0, favorited: username },
+  });
 
   /* const [filter, setFilter] = useState({
     feed: "FV",
     params: { offset: 0, favorited: username },
   }); */
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   // Article's list is initialized depending of selected tabs My Articles and Favorited Articles
-  useEffect(() => {
+  /* useEffect(() => {
     dispatch(initializeArticles({ offset, favorited: username }, user));
-  }, [offset, user]);
+  }, [offset, user]); */
 
-  const articlesCount = useSelector((state) => state.articles.articlesCount);
+  const { queryResult } = useArticlesQuery(filter, currentUser);
+  const articlesList = queryResult.data;
+
+  const articlesCount = articlesList?.articlesCount || null; // const articlesCount = useSelector((state) => state.articles.articlesCount);
   const limit = 10;
   const pages = Math.ceil(articlesCount / limit);
 
-  useEffect(() => {
+  /* useEffect(() => {
     profileServices.getUserProfile(username, user).then((prof) => {
       setProfile(prof.profile);
       setOffset(0);
@@ -43,6 +71,14 @@ function ProfileFavorites({ username }) {
         profile.username
       );
       setProfile(updatedProfile.profile);
+    }
+  }; */
+
+  const handleFollowCLick = async () => {
+    if (profile.profile.following === false) {
+      fallowUserMutation.mutate();
+    } else {
+      unfallowUserMutation.mutate();
     }
   };
 
@@ -60,8 +96,18 @@ function ProfileFavorites({ username }) {
     });
   }; */
 
-  if (!profile) {
-    return null;
+  if (queryResult.isLoading || isProfileLoading) {
+    return <div>loading data...</div>;
+  }
+
+  if (queryResult.isError || isProfileError) {
+    return (
+      <span>
+        blogs service is not available due to problems in server
+        <br />
+        Error: {queryResult.error?.message || profileError?.message}
+      </span>
+    );
   }
 
   return (
@@ -71,13 +117,13 @@ function ProfileFavorites({ username }) {
           <div className="row">
             <div className="col-xs-12 col-md-10 offset-md-1">
               <img
-                src={profile.image}
-                alt={profile.username}
+                src={profile.profile.image}
+                alt={profile.profile.username}
                 className="user-img"
               />
-              <h4>{profile.username}</h4>
+              <h4>{profile.profile.username}</h4>
               <p>{profile.bio}</p>
-              {user.username !== username && (
+              {currentUser.user.username !== username && (
                 <button
                   className="btn btn-sm btn-outline-secondary action-btn"
                   type="button"
@@ -85,13 +131,15 @@ function ProfileFavorites({ username }) {
                 >
                   <i
                     className={
-                      profile.following ? "ion-minus-round" : "ion-plus-round"
+                      profile.profile.following
+                        ? "ion-minus-round"
+                        : "ion-plus-round"
                     }
                   />
-                  &nbsp; Follow {profile.username}
+                  &nbsp; Follow {profile.profile.username}
                 </button>
               )}
-              {user.username === username && (
+              {currentUser.user.username === username && (
                 <Link
                   className="btn btn-sm btn-outline-secondary action-btn"
                   to="/settings"
@@ -123,18 +171,31 @@ function ProfileFavorites({ username }) {
               </ul>
             </div>
 
-            <ArticlesList scope="FAV" />
+            <ArticlesList
+              scope="FAV"
+              articlesList={articlesList}
+              user={currentUser}
+            />
 
             <ul className="pagination">
               {Array.from({ length: pages }, (v, i) => (
                 <li
-                  className={offset === i ? "page-item active" : "page-item"}
+                  className={
+                    filter.params.offset === i
+                      ? "page-item active"
+                      : "page-item"
+                  }
                   key={i}
                 >
                   <button
                     className="page-link"
                     type="button"
-                    onClick={() => setOffset(i * limit)}
+                    onClick={() =>
+                      setFilter({
+                        ...filter,
+                        params: { ...filter.params, offset: i * limit },
+                      })
+                    }
                   >
                     {i + 1}
                   </button>

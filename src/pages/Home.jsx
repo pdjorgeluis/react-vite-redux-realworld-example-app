@@ -17,7 +17,7 @@ import {
 function Home() {
   // const user = useSelector((state) => state.loggedUser.user);
   const { currentUser } = useCurrentUser();
-  console.log("currentUser in home", currentUser);
+  // console.log("currentUser in home", currentUser);
   // useCurrentUser()
   const [filter, setFilter] = useState({
     tag: "",

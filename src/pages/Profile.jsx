@@ -1,18 +1,26 @@
-import React, { useEffect, useState, useReducer } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import profileServices from "../services/profiles";
 import ArticlesList from "../components/ArticlesList";
-import { initializeArticles } from "../reducers/articleReducer";
-import useCurrentUser, { getLocalLoggedUser } from "../hooks/useCurrentUser";
+import { getLocalLoggedUser } from "../hooks/useCurrentUser";
 import useArticlesQuery from "../hooks/useArticlesQuery";
+import useProfileQuery from "../hooks/useProfileQuery";
+import useProfileMutation from "../hooks/useProfileMutation";
 
 function Profile({ username }) {
-  // const user = useSelector((state) => state.loggedUser.user);
   const currentUser = getLocalLoggedUser();
-  // Check if needed to ask for user below
-  const [profile, setProfile] = useState(null);
-  const [offset, setOffset] = useState(0);
+  const {
+    data: profile,
+    isLoading: isProfileLoading,
+    isError: isProfileError,
+    error: profileError,
+  } = useProfileQuery(username, currentUser.user);
+
+  const { fallowUserMutation, unfallowUserMutation } = useProfileMutation(
+    profile?.profile.username,
+    ["profile", username, currentUser.user]
+  );
+
+  // const [offset, setOffset] = useState(0);
 
   const [filter, setFilter] = useState({
     tag: "",
@@ -23,59 +31,30 @@ function Profile({ username }) {
   const { queryResult } = useArticlesQuery(filter, currentUser);
   const articlesList = queryResult.data;
 
-  /* const [filter, setFilter] = useState({
-    //feed: "MY",
-    params: { offset: 0, author: username },
-  }); */
-
-  const dispatch = useDispatch();
-
-  // Article's list is initialized depending of selected tabs My Articles and Favorited Articles
-  /*
-  useEffect(() => {
-    dispatch(initializeArticles({ offset, author: username }, user));
-  }, [offset, user]); */
-
-  // const articlesCount = useSelector((state) => state.articles.articlesCount);
   const articlesCount = articlesList?.articlesCount || null;
   const limit = 10;
   const pages = Math.ceil(articlesCount / limit);
 
-  useEffect(() => {
-    profileServices.getUserProfile(username, user).then((prof) => {
-      setProfile(prof.profile);
-      setOffset(0);
-    });
-  }, [username, user]);
-
   const handleFollowCLick = async () => {
-    if (profile.following === false) {
-      const updatedProfile = await profileServices.followUser(profile.username);
-      setProfile(updatedProfile.profile);
+    if (profile.profile.following === false) {
+      fallowUserMutation.mutate();
     } else {
-      const updatedProfile = await profileServices.unfollowUser(
-        profile.username
-      );
-      setProfile(updatedProfile.profile);
+      unfallowUserMutation.mutate();
     }
   };
 
-  /* const handleMyFeedClick = () => {
-    setFilter({
-      feed: "MY",
-      params: { ...filter.params, author: username, favorited: null },
-    });
-  };
+  if (queryResult.isLoading || isProfileLoading) {
+    return <div>loading data...</div>;
+  }
 
-  const handleFavoritedFeedClick = () => {
-    setFilter({
-      feed: "FAV",
-      params: { ...filter.params, favorited: username, author: null },
-    });
-  }; */
-
-  if (!profile) {
-    return null;
+  if (queryResult.isError || isProfileError) {
+    return (
+      <span>
+        blogs service is not available due to problems in server
+        <br />
+        Error: {queryResult.error?.message || profileError?.message}
+      </span>
+    );
   }
 
   return (
@@ -85,13 +64,13 @@ function Profile({ username }) {
           <div className="row">
             <div className="col-xs-12 col-md-10 offset-md-1">
               <img
-                src={profile.image}
-                alt={profile.username}
+                src={profile.profile.image}
+                alt={profile.profile.username}
                 className="user-img"
               />
-              <h4>{profile.username}</h4>
-              <p>{profile.bio}</p>
-              {user.username !== username && (
+              <h4>{profile.profile.username}</h4>
+              <p>{profile.profile.bio}</p>
+              {currentUser.user.username !== username && (
                 <button
                   className="btn btn-sm btn-outline-secondary action-btn"
                   type="button"
@@ -99,13 +78,15 @@ function Profile({ username }) {
                 >
                   <i
                     className={
-                      profile.following ? "ion-minus-round" : "ion-plus-round"
+                      profile.profile.following
+                        ? "ion-minus-round"
+                        : "ion-plus-round"
                     }
                   />
-                  &nbsp; Follow {profile.username}
+                  &nbsp; Follow {profile.profile.username}
                 </button>
               )}
-              {user.username === username && (
+              {currentUser.user.username === username && (
                 <Link
                   className="btn btn-sm btn-outline-secondary action-btn"
                   to="/settings"
@@ -137,18 +118,27 @@ function Profile({ username }) {
               </ul>
             </div>
 
-            <ArticlesList />
+            <ArticlesList articlesList={articlesList} user={currentUser} />
 
             <ul className="pagination">
               {Array.from({ length: pages }, (v, i) => (
                 <li
-                  className={offset === i ? "page-item active" : "page-item"}
+                  className={
+                    filter.params.offset === i
+                      ? "page-item active"
+                      : "page-item"
+                  }
                   key={i}
                 >
                   <button
                     className="page-link"
                     type="button"
-                    onClick={() => setOffset(i * limit)}
+                    onClick={() =>
+                      setFilter({
+                        ...filter,
+                        params: { ...filter.params, offset: i * limit },
+                      })
+                    }
                   >
                     {i + 1}
                   </button>

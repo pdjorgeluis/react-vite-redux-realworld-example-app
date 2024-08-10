@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   favoriteAnArticle,
   unfavoriteAnArticleAndRemove,
@@ -9,7 +10,8 @@ import {
 import useArticleUpdateMutation from "../hooks/useArticleMutation";
 
 function ArticlePreview({ article, scope, user }) {
-  const dispatch = useDispatch();
+  const queryClient = useQueryClient();
+  // const dispatch = useDispatch();
   // const user = useSelector((state) => state.loggedUser.user);
 
   /* const handleFavouriteClick = () => {
@@ -41,7 +43,9 @@ function ArticlePreview({ article, scope, user }) {
           // dispatch(favoriteAnArticle(article.slug));
         } else if (scope === "FAV") {
           // In this one pass queryKey for updating list of favorited
-          dispatch(unfavoriteAnArticleAndRemove(article.slug));
+          // dispatch(unfavoriteAnArticleAndRemove(article.slug));
+          unfavoriteMutation.mutate(article.slug);
+          queryClient.invalidateQueries("articles");
         } else {
           unfavoriteMutation.mutate(article.slug);
           // dispatch(unfavoriteAnArticleAndUpdate(article.slug));
