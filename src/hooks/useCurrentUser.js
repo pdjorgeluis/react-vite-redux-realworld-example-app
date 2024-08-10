@@ -11,22 +11,22 @@ const useSetToken = (service) => {
   return service
 } */
 
-const initializeUser = () => {
-  console.log("lilo");
+function useCurrentUser() {
+  const initializeUser = () => {
+    console.log("lilo");
 
-  const userJSON = window.localStorage.getItem("loggedAppUser");
-  if (userJSON) {
-    const loggedUser = JSON.parse(userJSON);
-    // setCurrentUser(loggedUser);
-    articleService.setToken(loggedUser.user.token);
-    userService.setToken(loggedUser.user.token);
-    profileService.setToken(loggedUser.user.token);
-    return loggedUser;
-  }
-  return { user: null };
-};
+    const userJSON = window.localStorage.getItem("loggedAppUser");
+    if (userJSON) {
+      const loggedUser = JSON.parse(userJSON);
+      // setCurrentUser(loggedUser);
+      articleService.setToken(loggedUser.user.token);
+      userService.setToken(loggedUser.user.token);
+      profileService.setToken(loggedUser.user.token);
+      return loggedUser;
+    }
+    return { user: null };
+  };
 
-export default function useCurrentUser() {
   const [currentUser, setCurrentUser] = useState(initializeUser());
 
   /* const initializeUser = () => {
@@ -50,5 +50,6 @@ export default function useCurrentUser() {
     initializeUser();
   }, []);
 */
-  return { currentUser, logOutUser };
+  return { currentUser, initializeUser };
 }
+export default useCurrentUser;

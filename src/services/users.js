@@ -9,7 +9,10 @@ const setToken = (newToken) => {
 };
 
 const getCurrentUser = async () => {
-  const response = await axios.get(`${baseUrl}/user`);
+  const config = {
+    headers: { Authorization: token },
+  };
+  const response = await axios.get(`${baseUrl}/user`, config);
   return response.data;
 };
 

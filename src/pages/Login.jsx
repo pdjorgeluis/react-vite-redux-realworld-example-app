@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { setUser } from "../reducers/userReducer";
 import Notification from "../components/Notifications";
 import userService from "../services/users";
 import articlesService from "../services/articles";
+import useCurrentUser from "../hooks/useCurrentUser";
 
 function Login() {
   const [error, setError] = useState(null);
@@ -12,12 +14,30 @@ function Login() {
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { initializeUser } = useCurrentUser();
+
+  const userMutation = useMutation({
+    mutationFn: userService.login,
+    onSuccess: (loggedUser) => {
+      queryClient.setQueryData(["currentUser"], loggedUser);
+      // queryClient.invalidateQueries("currentUser");
+      initializeUser();
+      navigate("/");
+    },
+    onError: (err) => setError(err),
+  });
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError(null);
 
-    try {
+    userMutation.mutate({
+      user: { email, password },
+    });
+
+    /* try {
       const userToLogin = await userService.login({
         user: { email, password },
       });
@@ -26,11 +46,12 @@ function Login() {
       userService.setToken(userToLogin.user.token);
       dispatch(setUser(userToLogin));
       setPassword("");
+      queryClient.invalidateQueries("currentUser");
       navigate("/");
     } catch (exception) {
       setError(exception);
       setPassword("");
-    }
+    } */
   };
 
   return (

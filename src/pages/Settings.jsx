@@ -1,28 +1,28 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { setUser, updateSettings } from "../reducers/userReducer";
 import Notification from "../components/Notifications";
 import useCurrentUser from "../hooks/useCurrentUser";
 
-function Settings({ currentUser, logOutUser }) {
-  // PASS USER FROM HEADER
-  // const user = useSelector((state) => state.loggedUser.user);
-  // const { currentUser, logOutUser } = useCurrentUser();
+function Settings({ currentUser }) {
+  // const { currentUser } = useCurrentUser();
   const [errorMessages, setErrorMessages] = useState([]);
-  console.log("currentUser in settings", currentUser);
+
+  console.log("user in settings", currentUser);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const handleLogOut = () => {
     window.localStorage.removeItem("loggedAppUser");
-    // dispatch(setUser({ user: null }));
-    // logOutUser();
 
+    queryClient.setQueryData(["currentUser"], { user: null });
     navigate("/");
   };
 
-  // Update user data
   const handleUpdateClick = async (event) => {
     event.preventDefault();
     setErrorMessages(null);
