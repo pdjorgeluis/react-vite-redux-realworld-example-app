@@ -10,6 +10,7 @@ import articleService from "../services/articles";
 // In ProfileFavorites when unfavorited an article it gets removed from the list
 function ArticlesList({ scope, articlesList, user }) {
   // const articlesList = useSelector((state) => state.articles);
+  console.log("articleList in ArticleList", articlesList);
 
   /* const queryResult = useQuery({
     queryKey: ["articles", { filter }, { user }],

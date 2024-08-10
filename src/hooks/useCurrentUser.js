@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import articleService from "../services/articles";
+import { useQuery } from "@tanstack/react-query";
 import userService from "../services/users";
+import articleService from "../services/articles";
+
 import profileService from "../services/profiles";
 /*
 const useSetToken = (service) => {
@@ -11,45 +13,39 @@ const useSetToken = (service) => {
   return service
 } */
 
-function useCurrentUser() {
-  const initializeUser = () => {
-    console.log("lilo");
+export const getLocalLoggedUser = () => {
+  const userJSON = window.localStorage.getItem("loggedAppUser");
+  if (userJSON) {
+    const loggedUser = JSON.parse(userJSON);
+    // setCurrentUser(loggedUser);
+    articleService.setToken(loggedUser.user.token);
+    userService.setToken(loggedUser.user.token);
+    profileService.setToken(loggedUser.user.token);
+    return loggedUser;
+  }
+  return { user: null };
+};
 
-    const userJSON = window.localStorage.getItem("loggedAppUser");
-    if (userJSON) {
-      const loggedUser = JSON.parse(userJSON);
-      // setCurrentUser(loggedUser);
-      articleService.setToken(loggedUser.user.token);
-      userService.setToken(loggedUser.user.token);
-      profileService.setToken(loggedUser.user.token);
-      return loggedUser;
-    }
-    return { user: null };
+function useCurrentUser() {
+  const [currentUser, setCurrentUser] = useState(getLocalLoggedUser());
+
+  const setNewUser = (user) => {
+    setCurrentUser(user);
+    window.localStorage.setItem("loggedAppUser", JSON.stringify(user));
+    articleService.setToken(user.user.token);
+    userService.setToken(user.user.token);
+    profileService.setToken(user.user.token);
   };
 
-  const [currentUser, setCurrentUser] = useState(initializeUser());
-
-  /* const initializeUser = () => {
-    console.log("lilo");
-
-    const userJSON = window.localStorage.getItem("loggedAppUser");
-    if (userJSON) {
-      const loggedUser = JSON.parse(userJSON);
-      setCurrentUser(loggedUser);
-      articleService.setToken(loggedUser.user.token);
-      userService.setToken(loggedUser.user.token);
-      profileService.setToken(loggedUser.user.token);
+  /* useEffect(() => {
+    if (data) {
+      setNewUser(data);
     }
-  }; */
+  }, [data]); */
 
   const logOutUser = () => {
     setCurrentUser({ user: null });
   };
-  /*
-  useEffect(() => {
-    initializeUser();
-  }, []);
-*/
-  return { currentUser, initializeUser };
+  return { currentUser, setNewUser, logOutUser };
 }
 export default useCurrentUser;

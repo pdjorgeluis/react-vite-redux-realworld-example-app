@@ -16,17 +16,20 @@ function Login() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { initializeUser } = useCurrentUser();
+  const { setNewUser } = useCurrentUser();
 
   const userMutation = useMutation({
     mutationFn: userService.login,
     onSuccess: (loggedUser) => {
-      queryClient.setQueryData(["currentUser"], loggedUser);
+      // queryClient.setQueryData(["currentUser"], loggedUser);
+
+      // window.localStorage.setItem("loggedAppUser", JSON.stringify(loggedUser));
       // queryClient.invalidateQueries("currentUser");
-      initializeUser();
+      // initializeUser(); // can change for useSetToken
+      setNewUser(loggedUser);
       navigate("/");
     },
-    onError: (err) => setError(err),
+    onError: (err) => console.log(err),
   });
 
   const handleSubmit = async (event) => {

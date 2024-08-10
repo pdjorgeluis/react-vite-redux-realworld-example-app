@@ -4,12 +4,24 @@ import { useDispatch, useSelector } from "react-redux";
 import profileServices from "../services/profiles";
 import ArticlesList from "../components/ArticlesList";
 import { initializeArticles } from "../reducers/articleReducer";
+import useCurrentUser, { getLocalLoggedUser } from "../hooks/useCurrentUser";
+import useArticlesQuery from "../hooks/useArticlesQuery";
 
 function Profile({ username }) {
-  const user = useSelector((state) => state.loggedUser.user);
+  // const user = useSelector((state) => state.loggedUser.user);
+  const currentUser = getLocalLoggedUser();
   // Check if needed to ask for user below
   const [profile, setProfile] = useState(null);
   const [offset, setOffset] = useState(0);
+
+  const [filter, setFilter] = useState({
+    tag: "",
+    feed: "GLOBAL",
+    params: { offset: 0, author: username },
+  });
+
+  const { queryResult } = useArticlesQuery(filter, currentUser);
+  const articlesList = queryResult.data;
 
   /* const [filter, setFilter] = useState({
     //feed: "MY",
@@ -19,11 +31,13 @@ function Profile({ username }) {
   const dispatch = useDispatch();
 
   // Article's list is initialized depending of selected tabs My Articles and Favorited Articles
+  /*
   useEffect(() => {
     dispatch(initializeArticles({ offset, author: username }, user));
-  }, [offset, user]);
+  }, [offset, user]); */
 
-  const articlesCount = useSelector((state) => state.articles.articlesCount);
+  // const articlesCount = useSelector((state) => state.articles.articlesCount);
+  const articlesCount = articlesList?.articlesCount || null;
   const limit = 10;
   const pages = Math.ceil(articlesCount / limit);
 

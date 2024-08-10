@@ -1,25 +1,32 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { setUser, updateSettings } from "../reducers/userReducer";
 import Notification from "../components/Notifications";
+import userService from "../services/users";
 import useCurrentUser from "../hooks/useCurrentUser";
 
-function Settings({ currentUser }) {
-  // const { currentUser } = useCurrentUser();
+function Settings() {
+  const { currentUser, setNewUser, logOutUser } = useCurrentUser();
   const [errorMessages, setErrorMessages] = useState([]);
-
-  console.log("user in settings", currentUser);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
+  const updateProfileMutation = useMutation({
+    mutationFn: userService.updateCurrentUser,
+    onSuccess: (updatedUser) => {
+      setNewUser(updatedUser);
+      // queryClient.setQueriesData(["currentUser"], updatedUser);
+    },
+    onError: (error) => console.log(error),
+  });
 
   const handleLogOut = () => {
     window.localStorage.removeItem("loggedAppUser");
-
-    queryClient.setQueryData(["currentUser"], { user: null });
+    logOutUser();
+    // queryClient.setQueryData(["currentUser"], { user: null });
     navigate("/");
   };
 
@@ -39,7 +46,8 @@ function Settings({ currentUser }) {
         image: event.target.image.value,
       },
     };
-    dispatch(updateSettings(newUser));
+    updateProfileMutation.mutate(newUser);
+    // dispatch(updateSettings(newUser));
     navigate("/");
   };
 

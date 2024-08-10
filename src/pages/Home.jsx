@@ -28,7 +28,7 @@ function Home() {
   const { queryResult } = useArticlesQuery(filter, currentUser);
   const articlesList = queryResult.data;
 
-  console.log("articles list", articlesList);
+  // console.log("articles list", articlesList);
 
   const articlesCount = articlesList?.articlesCount || null; // useSelector((state) => state.articles.articlesCount);
   const limit = 10;
