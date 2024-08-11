@@ -1,9 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import profileServices from "../services/profiles";
 import ArticlesList from "../components/ArticlesList";
-import { initializeArticles } from "../reducers/articleReducer";
 
 import { getLocalLoggedUser } from "../hooks/useCurrentUser";
 import useArticlesQuery from "../hooks/useArticlesQuery";
@@ -11,10 +8,6 @@ import useProfileQuery from "../hooks/useProfileQuery";
 import useProfileMutation from "../hooks/useProfileMutation";
 
 function ProfileFavorites({ username }) {
-  // const user = useSelector((state) => state.loggedUser.user);
-  // Check if needed to ask for user below
-  // const [profile, setProfile] = useState(null);
-
   const currentUser = getLocalLoggedUser();
   const {
     data: profile,
@@ -28,51 +21,18 @@ function ProfileFavorites({ username }) {
     ["profile", username, currentUser.user]
   );
 
-  // const [offset, setOffset] = useState(0);
-
   const [filter, setFilter] = useState({
     tag: "",
     feed: "GLOBAL",
     params: { offset: 0, favorited: username },
   });
 
-  /* const [filter, setFilter] = useState({
-    feed: "FV",
-    params: { offset: 0, favorited: username },
-  }); */
-
-  // const dispatch = useDispatch();
-
-  // Article's list is initialized depending of selected tabs My Articles and Favorited Articles
-  /* useEffect(() => {
-    dispatch(initializeArticles({ offset, favorited: username }, user));
-  }, [offset, user]); */
-
   const { queryResult } = useArticlesQuery(filter, currentUser);
   const articlesList = queryResult.data;
 
-  const articlesCount = articlesList?.articlesCount || null; // const articlesCount = useSelector((state) => state.articles.articlesCount);
+  const articlesCount = articlesList?.articlesCount || null;
   const limit = 10;
   const pages = Math.ceil(articlesCount / limit);
-
-  /* useEffect(() => {
-    profileServices.getUserProfile(username, user).then((prof) => {
-      setProfile(prof.profile);
-      setOffset(0);
-    });
-  }, [username, user]);
-
-  const handleFollowCLick = async () => {
-    if (profile.following === false) {
-      const updatedProfile = await profileServices.followUser(profile.username);
-      setProfile(updatedProfile.profile);
-    } else {
-      const updatedProfile = await profileServices.unfollowUser(
-        profile.username
-      );
-      setProfile(updatedProfile.profile);
-    }
-  }; */
 
   const handleFollowCLick = async () => {
     if (profile.profile.following === false) {
@@ -81,20 +41,6 @@ function ProfileFavorites({ username }) {
       unfallowUserMutation.mutate();
     }
   };
-
-  /* const handleMyFeedClick = () => {
-    setFilter({
-      feed: "MY",
-      params: { ...filter.params, author: username, favorited: null },
-    });
-  };
-
-  const handleFavoritedFeedClick = () => {
-    setFilter({
-      feed: "FAV",
-      params: { ...filter.params, favorited: username, author: null },
-    });
-  }; */
 
   if (queryResult.isLoading || isProfileLoading) {
     return <div>loading data...</div>;
@@ -123,7 +69,7 @@ function ProfileFavorites({ username }) {
               />
               <h4>{profile.profile.username}</h4>
               <p>{profile.bio}</p>
-              {currentUser.user.username !== username && (
+              {currentUser.user?.username !== username && (
                 <button
                   className="btn btn-sm btn-outline-secondary action-btn"
                   type="button"
@@ -139,7 +85,7 @@ function ProfileFavorites({ username }) {
                   &nbsp; Follow {profile.profile.username}
                 </button>
               )}
-              {currentUser.user.username === username && (
+              {currentUser.user?.username === username && (
                 <Link
                   className="btn btn-sm btn-outline-secondary action-btn"
                   to="/settings"

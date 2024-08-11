@@ -1,24 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import useArticlesQuery from "../hooks/useArticlesQuery";
-// import { useCurrentUser } from "../hooks/useCurrentUser";
 import useCurrentUser from "../hooks/useCurrentUser";
 import tagsService from "../services/tags";
 import Banner from "../components/Banner";
 import ArticlesList from "../components/ArticlesList";
-import {
-  setArticlesByTag,
-  setArticlesByFeed,
-  initializeArticles,
-} from "../reducers/articleReducer";
 
 function Home() {
-  // const user = useSelector((state) => state.loggedUser.user);
   const { currentUser } = useCurrentUser();
-  // console.log("currentUser in home", currentUser);
-  // useCurrentUser()
+
   const [filter, setFilter] = useState({
     tag: "",
     feed: "GLOBAL",
@@ -28,13 +19,10 @@ function Home() {
   const { queryResult } = useArticlesQuery(filter, currentUser);
   const articlesList = queryResult.data;
 
-  // console.log("articles list", articlesList);
-
-  const articlesCount = articlesList?.articlesCount || null; // useSelector((state) => state.articles.articlesCount);
+  const articlesCount = articlesList?.articlesCount || null;
   const limit = 10;
   const pages = Math.ceil(articlesCount / limit);
   const [page, setPage] = useState(0);
-  // const [tags, setTags] = useState([]);
 
   const { isLoading, isError, data, error } = useQuery({
     queryKey: ["tags"],
@@ -42,34 +30,6 @@ function Home() {
     refetchOnWindowFocus: false,
     retry: 1,
   });
-
-  // const dispatch = useDispatch();
-
-  /* useEffect(() => {
-    tagsService.getAll().then((fetchedTags) => setTags(fetchedTags.tags));
-  }, []); */
-
-  // Handles what list of articles will be shown
-  /* useEffect(() => {
-    console.log("filter in effect", filter);
-
-    switch (filter.feed) {
-      case "GLOBAL": {
-        dispatch(initializeArticles(filter.params, currentUser.user));
-        break;
-      }
-      case "TAG": {
-        dispatch(setArticlesByTag(filter.params, filter.tag, currentUser.user));
-        break;
-      }
-      case "YOUR": {
-        dispatch(setArticlesByFeed(filter.params));
-        break;
-      }
-      default:
-        break;
-    }
-  }, [currentUser]); // [filter, page, currentUser]); */
 
   if (isLoading) {
     return <div>loading data...</div>;
@@ -89,7 +49,6 @@ function Home() {
 
   const handleTagClick = (t) => {
     setFilter({ tag: t, feed: "TAG", params: { offset: 0, tag: t } });
-    console.log(t);
   };
 
   const handleGlobalFeedClick = () => {
@@ -116,7 +75,7 @@ function Home() {
           <div className="col-md-9">
             <div className="feed-toggle">
               <ul className="nav nav-pills outline-active">
-                {currentUser && (
+                {currentUser.user && (
                   <li className="nav-item">
                     <button
                       className={`nav-link ${filter.feed === "YOUR" ? "active" : ""}`}

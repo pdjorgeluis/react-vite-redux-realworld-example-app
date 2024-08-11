@@ -1,21 +1,44 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { setUser } from "../reducers/userReducer";
 import Notification from "../components/Notifications";
 import userService from "../services/users";
 import articlesService from "../services/articles";
+import useCurrentUser from "../hooks/useCurrentUser";
 
 function Register() {
   const [error, setError] = useState(null);
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const { setNewUser } = useCurrentUser();
+
+  const userMutation = useMutation({
+    mutationFn: userService.register,
+    onSuccess: (loggedUser) => {
+      console.log(loggedUser);
+
+      setNewUser(loggedUser);
+      navigate("/");
+    },
+    onError: (err) => console.log(err),
+  });
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError(null);
 
     try {
+      userMutation.mutate({
+        user: {
+          username: event.target.username.value,
+          email: event.target.email.value,
+          password: event.target.password.value,
+        },
+      });
+      /*
       const userToregister = await userService.register({
         user: {
           username: event.target.username.value,
@@ -28,10 +51,12 @@ function Register() {
         "loggedAppUser",
         JSON.stringify(userToregister)
       );
+      
+
       articlesService.setToken(userToregister.user.token);
       userService.setToken(userToregister.user.token);
       dispatch(setUser(userToregister));
-      navigate("/");
+      navigate("/"); */
     } catch (exception) {
       setError(exception);
     }
@@ -44,7 +69,7 @@ function Register() {
           <div className="col-md-6 offset-md-3 col-xs-12">
             <h1 className="text-xs-center">Sign up</h1>
             <p className="text-xs-center">
-              <a href="/login">Have an account?</a>
+              <Link to="/login">Have an account?</Link>
             </p>
 
             <Notification error={error} />

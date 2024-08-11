@@ -20,8 +20,6 @@ function Profile({ username }) {
     ["profile", username, currentUser.user]
   );
 
-  // const [offset, setOffset] = useState(0);
-
   const [filter, setFilter] = useState({
     tag: "",
     feed: "GLOBAL",
@@ -29,7 +27,10 @@ function Profile({ username }) {
   });
 
   useEffect(() => {
-    setFilter({ ...filter, params: { ...filter.params, author: username } });
+    setFilter((prev) => ({
+      ...prev,
+      params: { ...prev.params, author: username },
+    }));
   }, [username]);
 
   const { queryResult } = useArticlesQuery(filter, currentUser);
@@ -74,7 +75,7 @@ function Profile({ username }) {
               />
               <h4>{profile.profile.username}</h4>
               <p>{profile.profile.bio}</p>
-              {currentUser.user.username !== username && (
+              {currentUser.user?.username !== username && (
                 <button
                   className="btn btn-sm btn-outline-secondary action-btn"
                   type="button"
@@ -90,7 +91,7 @@ function Profile({ username }) {
                   &nbsp; Follow {profile.profile.username}
                 </button>
               )}
-              {currentUser.user.username === username && (
+              {currentUser.user?.username === username && (
                 <Link
                   className="btn btn-sm btn-outline-secondary action-btn"
                   to="/settings"
