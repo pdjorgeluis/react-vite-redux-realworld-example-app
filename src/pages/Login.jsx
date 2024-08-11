@@ -26,6 +26,8 @@ function Login() {
       // window.localStorage.setItem("loggedAppUser", JSON.stringify(loggedUser));
       // queryClient.invalidateQueries("currentUser");
       // initializeUser(); // can change for useSetToken
+      console.log(loggedUser);
+
       setNewUser(loggedUser);
       navigate("/");
     },

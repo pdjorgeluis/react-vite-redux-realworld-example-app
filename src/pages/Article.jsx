@@ -5,6 +5,7 @@ import articleService from "../services/articles";
 import profileServices from "../services/profiles";
 import useCurrentUser, { getLocalLoggedUser } from "../hooks/useCurrentUser";
 import useProfileQuery from "../hooks/useProfileQuery";
+import useCommentMutation from "../hooks/useCommentMutation";
 
 import {
   favoriteAnArticle,
@@ -19,12 +20,13 @@ import {
 import Comment from "../components/Comment";
 import useSingleArticleQuery from "../hooks/useSingleArticleQuery";
 import useArticleUpdateMutation from "../hooks/useArticleMutation";
+import useCommentsQuery from "../hooks/useCommentQuery";
 
 function Article({ articleSlug }) {
   // const user = useSelector((state) => state.loggedUser.user);
   // Check if needed to ask for user below
   const currentUser = getLocalLoggedUser();
-  const commentList = useSelector((state) => state.comments.comments);
+  // const commentList = useSelector((state) => state.comments.comments);
 
   const {
     isLoading: isArticleLoading,
@@ -40,10 +42,23 @@ function Article({ articleSlug }) {
     error: profileError,
   } = useProfileQuery(article?.article.author.username, currentUser.user);
 
+  const {
+    data: commentList,
+    isLoading: isCommentsLoading,
+    isError: isCommentsError,
+    error: commentsError,
+  } = useCommentsQuery(articleSlug, currentUser.user);
+
   const { articleMutation: deleteMutation } = useArticleUpdateMutation(
     "DELETE",
-    ["article", articleSlug]
+    ["articles", articleSlug]
   );
+
+  const { createCommentMutation, deleteCommentMutation } = useCommentMutation([
+    "comments",
+    articleSlug,
+    currentUser.user,
+  ]);
 
   // const [article, setArticle] = useState(null);
   // const [profile, setProfile] = useState(null);
@@ -105,29 +120,38 @@ function Article({ articleSlug }) {
 
   const handlePostComment = (event) => {
     event.preventDefault();
-    dispatch(
+    /* dispatch(
       addComment(articleSlug, { comment: { body: event.target.comment.value } })
-    );
+    ); */
+
+    createCommentMutation.mutate([
+      articleSlug,
+      {
+        comment: { body: event.target.comment.value },
+      },
+    ]);
     event.target.reset();
   };
 
   const handleDeleteComment = (comment) => {
-    dispatch(deleteComment(articleSlug, comment));
+    // dispatch(deleteComment(articleSlug, comment));
+    deleteCommentMutation.mutate([articleSlug, comment.id]);
   };
 
-  if (!article || !profile) {
+  if (!article) {
     return <div>No article</div>;
   }
 
-  if (isArticleLoading || isProfileLoading) {
+  if (isArticleLoading || isProfileLoading || isCommentsLoading) {
     return <span>Loading...</span>;
   }
 
-  if (isArticleError || isProfileError) {
+  if (isArticleError || isProfileError || isCommentsError) {
     return (
       <>
         <span>Error: {articleError.message}</span>
-        <span>Error: {profileError.message}</span>;
+        <span>Error: {profileError.message}</span>
+        <span>Error: {commentsError.message}</span>;
       </>
     );
   }
@@ -330,7 +354,7 @@ function Article({ articleSlug }) {
                   </div>
                 </form>
 
-                {commentList.map((comment) => (
+                {commentList.comments.map((comment) => (
                   <Comment
                     key={comment.id}
                     comment={comment}

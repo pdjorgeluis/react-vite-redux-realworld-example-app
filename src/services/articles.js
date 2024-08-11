@@ -79,6 +79,7 @@ const getComments = (slug, user) => {
 const createComment = async (slug, newObject) => {
   const config = {
     headers: { Authorization: token },
+    params: { slug },
   };
 
   const response = await axios.post(
@@ -144,4 +145,6 @@ export default {
   getComments,
   createComment,
   deleteComment,
+  token,
+  baseUrl,
 };

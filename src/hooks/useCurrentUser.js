@@ -31,6 +31,8 @@ function useCurrentUser() {
 
   const setNewUser = (user) => {
     setCurrentUser(user);
+    console.log("user in setNewUser", user.user.token);
+
     window.localStorage.setItem("loggedAppUser", JSON.stringify(user));
     articleService.setToken(user.user.token);
     userService.setToken(user.user.token);
