@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+// import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { setUser, updateSettings } from "../reducers/userReducer";
@@ -11,7 +11,7 @@ function Settings() {
   const { currentUser, setNewUser, logOutUser } = useCurrentUser();
   const [errorMessages, setErrorMessages] = useState([]);
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const navigate = useNavigate();
   // const queryClient = useQueryClient();
   const updateProfileMutation = useMutation({

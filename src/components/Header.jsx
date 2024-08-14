@@ -1,10 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import useCurrentUser, { getLocalLoggedUser } from "../hooks/useCurrentUser";
+// import useCurrentUser, { getLocalLoggedUser } from "../hooks/useCurrentUser";
+import useCurrentUser from "../hooks/useCurrentUser";
+import {
+  getLocalStorageItem,
+  setLocalStorageItem,
+} from "../utils/localstorage_helper";
 
 function Header() {
   // const { currentUser } = useCurrentUser();
-  const currentUser = getLocalLoggedUser();
+  const currentUser = getLocalStorageItem("loggedAppUser") || { user: null };
 
   if (!currentUser.user) {
     return (

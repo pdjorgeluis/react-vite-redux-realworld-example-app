@@ -2,13 +2,15 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import ArticlesList from "../components/ArticlesList";
 
-import { getLocalLoggedUser } from "../hooks/useCurrentUser";
+import useCurrentUser from "../hooks/useCurrentUser";
 import useArticlesQuery from "../hooks/useArticlesQuery";
 import useProfileQuery from "../hooks/useProfileQuery";
 import useProfileMutation from "../hooks/useProfileMutation";
 
 function ProfileFavorites({ username }) {
-  const currentUser = getLocalLoggedUser();
+  // const currentUser = getLocalLoggedUser();
+  const { currentUser } = useCurrentUser();
+
   const {
     data: profile,
     isLoading: isProfileLoading,

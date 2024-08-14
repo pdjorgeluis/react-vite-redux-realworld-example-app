@@ -4,7 +4,8 @@ import useArticleUpdateMutation from "../hooks/useArticleMutation";
 
 import Notifications from "../components/Notifications";
 import useSingleArticleQuery from "../hooks/useSingleArticleQuery";
-import { getLocalLoggedUser } from "../hooks/useCurrentUser";
+// import { getLocalLoggedUser } from "../hooks/useCurrentUser";
+import useCurrentUser from "../hooks/useCurrentUser";
 
 function Editor({ articleSlug }) {
   const navigate = useNavigate();
@@ -12,7 +13,8 @@ function Editor({ articleSlug }) {
   const { status, fetchStatus, data, error } =
     useSingleArticleQuery(articleSlug);
 
-  const currentUser = getLocalLoggedUser();
+  // const currentUser = getLocalLoggedUser();
+  const { currentUser } = useCurrentUser();
 
   const [inputTag, setInputTag] = useState("");
   const [tags, setTags] = useState([]);

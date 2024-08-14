@@ -3,9 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import articleService from "../services/articles";
 import profileServices from "../services/profiles";
-import useCurrentUser, { getLocalLoggedUser } from "../hooks/useCurrentUser";
+// import useCurrentUser, { getLocalLoggedUser } from "../hooks/useCurrentUser";
 import useProfileQuery from "../hooks/useProfileQuery";
 import useCommentMutation from "../hooks/useCommentMutation";
+import useCurrentUser from "../hooks/useCurrentUser";
 
 import {
   favoriteAnArticle,
@@ -25,8 +26,9 @@ import useCommentsQuery from "../hooks/useCommentQuery";
 function Article({ articleSlug }) {
   // const user = useSelector((state) => state.loggedUser.user);
   // Check if needed to ask for user below
-  const currentUser = getLocalLoggedUser();
+  // const currentUser = getLocalLoggedUser();
   // const commentList = useSelector((state) => state.comments.comments);
+  const { currentUser } = useCurrentUser();
 
   const {
     isLoading: isArticleLoading,
