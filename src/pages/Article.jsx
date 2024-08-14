@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useReducer } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+// import { useDispatch, useSelector } from "react-redux";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import articleService from "../services/articles";
 import profileServices from "../services/profiles";
 // import useCurrentUser, { getLocalLoggedUser } from "../hooks/useCurrentUser";
@@ -22,6 +23,7 @@ import Comment from "../components/Comment";
 import useSingleArticleQuery from "../hooks/useSingleArticleQuery";
 import useArticleUpdateMutation from "../hooks/useArticleMutation";
 import useCommentsQuery from "../hooks/useCommentQuery";
+import useProfileMutation from "../hooks/useProfileMutation";
 
 function Article({ articleSlug }) {
   // const user = useSelector((state) => state.loggedUser.user);
@@ -29,20 +31,23 @@ function Article({ articleSlug }) {
   // const currentUser = getLocalLoggedUser();
   // const commentList = useSelector((state) => state.comments.comments);
   const { currentUser } = useCurrentUser();
+  const queryClient = useQueryClient();
 
   const {
     isLoading: isArticleLoading,
     isError: isArticleError,
-    data: article,
+    article,
     error: articleError,
   } = useSingleArticleQuery(articleSlug);
 
   const {
-    data: profile,
+    profile,
     isLoading: isProfileLoading,
     isError: isProfileError,
     error: profileError,
-  } = useProfileQuery(article?.article.author.username, currentUser.user);
+  } = useProfileQuery(article.article?.author.username, currentUser.user);
+
+  console.log("profile in Article", profile);
 
   const {
     data: commentList,
@@ -62,9 +67,14 @@ function Article({ articleSlug }) {
     currentUser.user,
   ]);
 
+  const { fallowUserMutation, unfallowUserMutation } = useProfileMutation(
+    profile.profile?.username,
+    ["profile", article.article?.author.username, currentUser.user]
+  );
+
   // const [article, setArticle] = useState(null);
   // const [profile, setProfile] = useState(null);
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
   const navigate = useNavigate();
@@ -83,29 +93,35 @@ function Article({ articleSlug }) {
   }, [currentUser.user, articleSlug]); */
 
   const handleFollowCLick = async () => {
-    if (profile.following === false) {
-      const updatedProfile = await profileServices.followUser(profile.username);
+    if (profile.profile.following === false) {
+      /* const updatedProfile = await profileServices.followUser(
+        profile.profile.username
+      ); */
       // setProfile(updatedProfile.profile);
+      fallowUserMutation.mutate();
+      // queryClient.invalidateQueries(["articles"]);
     } else {
-      const updatedProfile = await profileServices.unfollowUser(
-        profile.username
-      );
+      /* const updatedProfile = await profileServices.unfollowUser(
+        profile.profile.username
+      ); */
       // setProfile(updatedProfile.profile);
+      unfallowUserMutation.mutate();
+      // queryClient.invalidateQueries(["articles"]);
     }
   };
 
   const handleFavoriteCLick = () => {
-    if (article.favorited === false) {
-      dispatch(favoriteAnArticle(article.slug));
+    if (article.article.favorited === false) {
+      // dispatch(favoriteAnArticle(article.slug));
     } else {
-      dispatch(unfavoriteAnArticleAndUpdate(article.slug));
+      // dispatch(unfavoriteAnArticleAndUpdate(article.slug));
     }
     forceUpdate();
   };
 
   const handleDeleteCLick = () => {
     // eslint-disable-next-line no-alert
-    if (window.confirm(`Remove article ${article.title}?`)) {
+    if (window.confirm(`Remove article ${article.article.title}?`)) {
       deleteMutation.mutate(articleSlug, {
         onSuccess: () => {
           navigate(`/${currentUser.user.username}`);
@@ -140,12 +156,12 @@ function Article({ articleSlug }) {
     deleteCommentMutation.mutate([articleSlug, comment.id]);
   };
 
-  if (!article) {
-    return <div>No article</div>;
-  }
-
   if (isArticleLoading || isProfileLoading || isCommentsLoading) {
     return <span>Loading...</span>;
+  }
+
+  if (!article.article) {
+    return <div>No article</div>;
   }
 
   if (isArticleError || isProfileError || isCommentsError) {
@@ -190,7 +206,9 @@ function Article({ articleSlug }) {
                   >
                     <i
                       className={
-                        profile.following ? "ion-minus-round" : "ion-plus-round"
+                        profile.profile.following
+                          ? "ion-minus-round"
+                          : "ion-plus-round"
                       }
                     />
                     &nbsp; Follow {article.article.author.username}{" "}

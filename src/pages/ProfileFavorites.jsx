@@ -12,14 +12,14 @@ function ProfileFavorites({ username }) {
   const { currentUser } = useCurrentUser();
 
   const {
-    data: profile,
+    profile,
     isLoading: isProfileLoading,
     isError: isProfileError,
     error: profileError,
   } = useProfileQuery(username, currentUser.user);
 
   const { fallowUserMutation, unfallowUserMutation } = useProfileMutation(
-    profile?.profile.username,
+    profile.profile?.username,
     ["profile", username, currentUser.user]
   );
 

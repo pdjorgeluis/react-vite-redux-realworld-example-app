@@ -10,22 +10,26 @@ import useCurrentUser from "../hooks/useCurrentUser";
 function Editor({ articleSlug }) {
   const navigate = useNavigate();
 
-  const { status, fetchStatus, data, error } =
+  const { status, fetchStatus, article, error } =
     useSingleArticleQuery(articleSlug);
+  console.log("article in Editor", article);
 
   // const currentUser = getLocalLoggedUser();
   const { currentUser } = useCurrentUser();
 
   const [inputTag, setInputTag] = useState("");
-  const [tags, setTags] = useState([]);
+  const [tags, setTags] = useState(
+    article.article ? article.article.tagList : []
+  );
   const [errors, setErrors] = useState(null);
 
+  // check if set Tags effect can be eliminated
   useEffect(() => {
-    if (data) {
-      setTags(data.article.tagList);
+    if (article.article) {
+      setTags(article.article.tagList);
     }
-  }, [data]);
-  const article = articleSlug && data ? data.article : null;
+  }, [article]);
+  // const article = articleSlug && data ? data.article : null;
 
   const { articleMutation: updateMutation } = useArticleUpdateMutation(
     "UPDATE",
@@ -99,7 +103,7 @@ function Editor({ articleSlug }) {
                     className="form-control form-control-lg"
                     placeholder="Article Title"
                     name="title"
-                    defaultValue={article && articleSlug ? article.title : ""}
+                    defaultValue={articleSlug ? article.article?.title : ""}
                   />
                 </fieldset>
                 <fieldset className="form-group">
@@ -109,7 +113,7 @@ function Editor({ articleSlug }) {
                     placeholder="What's this article about?"
                     name="description"
                     defaultValue={
-                      article && articleSlug ? article.description : ""
+                      articleSlug ? article.article.description : ""
                     }
                   />
                 </fieldset>
@@ -119,7 +123,7 @@ function Editor({ articleSlug }) {
                     rows="8"
                     placeholder="Write your article (in markdown)"
                     name="body"
-                    defaultValue={article && articleSlug ? article.body : ""}
+                    defaultValue={articleSlug ? article.article.body : ""}
                   />
                 </fieldset>
                 <fieldset className="form-group">

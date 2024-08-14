@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import useArticlesQuery from "../hooks/useArticlesQuery";
 import useCurrentUser from "../hooks/useCurrentUser";
@@ -9,6 +9,7 @@ import ArticlesList from "../components/ArticlesList";
 
 function Home() {
   const { currentUser } = useCurrentUser();
+  const queryClient = useQueryClient();
 
   const [filter, setFilter] = useState({
     tag: "",
@@ -16,7 +17,7 @@ function Home() {
     params: { offset: 0 },
   });
 
-  const { queryResult } = useArticlesQuery(filter, currentUser);
+  const { queryResult } = useArticlesQuery(filter, currentUser.user);
   const articlesList = queryResult.data;
 
   const articlesCount = articlesList?.articlesCount || null;
@@ -56,6 +57,11 @@ function Home() {
   };
 
   const handleYourFeedClick = () => {
+    queryClient.invalidateQueries([
+      "articles",
+      { tag: "", feed: "YOUR", params: { offset: 0 } },
+      currentUser.user,
+    ]);
     setFilter({ tag: "", feed: "YOUR", params: { offset: 0 } });
   };
 
