@@ -1,12 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  favoriteAnArticle,
-  unfavoriteAnArticleAndRemove,
-  unfavoriteAnArticleAndUpdate,
-} from "../reducers/articleReducer";
+
 import useArticleUpdateMutation from "../hooks/useArticleMutation";
 
 function ArticlePreview({ article, scope, user }) {

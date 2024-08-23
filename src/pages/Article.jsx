@@ -1,24 +1,9 @@
-import React, { useEffect, useState, useReducer } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-// import { useDispatch, useSelector } from "react-redux";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import articleService from "../services/articles";
-import profileServices from "../services/profiles";
-// import useCurrentUser, { getLocalLoggedUser } from "../hooks/useCurrentUser";
 import useProfileQuery from "../hooks/useProfileQuery";
 import useCommentMutation from "../hooks/useCommentMutation";
 import useCurrentUser from "../hooks/useCurrentUser";
 
-import {
-  favoriteAnArticle,
-  unfavoriteAnArticleAndUpdate,
-  deleteArticle,
-} from "../reducers/articleReducer";
-import {
-  initComments,
-  addComment,
-  deleteComment,
-} from "../reducers/commentReducer";
 import Comment from "../components/Comment";
 import useSingleArticleQuery from "../hooks/useSingleArticleQuery";
 import useArticleUpdateMutation from "../hooks/useArticleMutation";
@@ -26,12 +11,7 @@ import useCommentsQuery from "../hooks/useCommentQuery";
 import useProfileMutation from "../hooks/useProfileMutation";
 
 function Article({ articleSlug }) {
-  // const user = useSelector((state) => state.loggedUser.user);
-  // Check if needed to ask for user below
-  // const currentUser = getLocalLoggedUser();
-  // const commentList = useSelector((state) => state.comments.comments);
   const { currentUser } = useCurrentUser();
-  const queryClient = useQueryClient();
 
   const {
     isLoading: isArticleLoading,
@@ -47,7 +27,7 @@ function Article({ articleSlug }) {
     error: profileError,
   } = useProfileQuery(article.article?.author.username, currentUser.user);
 
-  console.log("profile in Article", profile);
+  // console.log("profile in Article", profile);
 
   const {
     data: commentList,
@@ -72,51 +52,34 @@ function Article({ articleSlug }) {
     ["profile", article.article?.author.username, currentUser.user]
   );
 
-  // const [article, setArticle] = useState(null);
-  // const [profile, setProfile] = useState(null);
-  // const dispatch = useDispatch();
+  const { articleMutation: favoriteMutation } = useArticleUpdateMutation(
+    "FAVORITE",
+    "article"
+  );
+  const { articleMutation: unfavoriteMutation } = useArticleUpdateMutation(
+    "UNFAVORITE",
+    "article"
+  );
 
-  const [, forceUpdate] = useReducer((x) => x + 1, 0);
+  // const [, forceUpdate] = useReducer((x) => x + 1, 0);
   const navigate = useNavigate();
-
-  // Fetch Article by slug and Profile of the author
-  /* useEffect(() => {
-    if (articleSlug) {
-      articleService.getBySlug(articleSlug, currentUser.user).then((art) => {
-        setArticle(art.article);
-        profileServices
-          .getUserProfile(art.article.author.username, currentUser.user)
-          .then((prof) => setProfile(prof.profile));
-        dispatch(initComments(articleSlug, currentUser.user));
-      });
-    }
-  }, [currentUser.user, articleSlug]); */
 
   const handleFollowCLick = async () => {
     if (profile.profile.following === false) {
-      /* const updatedProfile = await profileServices.followUser(
-        profile.profile.username
-      ); */
-      // setProfile(updatedProfile.profile);
       fallowUserMutation.mutate();
-      // queryClient.invalidateQueries(["articles"]);
     } else {
-      /* const updatedProfile = await profileServices.unfollowUser(
-        profile.profile.username
-      ); */
-      // setProfile(updatedProfile.profile);
       unfallowUserMutation.mutate();
-      // queryClient.invalidateQueries(["articles"]);
     }
   };
 
+  console.log("favorited", article.article?.favorited);
   const handleFavoriteCLick = () => {
     if (article.article.favorited === false) {
-      // dispatch(favoriteAnArticle(article.slug));
+      favoriteMutation.mutate(article.article.slug);
     } else {
-      // dispatch(unfavoriteAnArticleAndUpdate(article.slug));
+      unfavoriteMutation.mutate(article.article.slug);
     }
-    forceUpdate();
+    // forceUpdate();
   };
 
   const handleDeleteCLick = () => {

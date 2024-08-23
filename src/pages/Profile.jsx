@@ -9,7 +9,7 @@ import useProfileMutation from "../hooks/useProfileMutation";
 function Profile({ username }) {
   // const currentUser = getLocalLoggedUser();
   const { currentUser } = useCurrentUser();
-
+  console.log("rendered Profile");
   const {
     profile,
     isLoading: isProfileLoading,

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import useArticleUpdateMutation from "../hooks/useArticleMutation";
-
 import Notifications from "../components/Notifications";
 import useSingleArticleQuery from "../hooks/useSingleArticleQuery";
 // import { getLocalLoggedUser } from "../hooks/useCurrentUser";
@@ -12,7 +12,8 @@ function Editor({ articleSlug }) {
 
   const { status, fetchStatus, article, error } =
     useSingleArticleQuery(articleSlug);
-  console.log("article in Editor", article);
+
+  const queryClient = useQueryClient();
 
   // const currentUser = getLocalLoggedUser();
   const { currentUser } = useCurrentUser();
@@ -61,7 +62,11 @@ function Editor({ articleSlug }) {
         },
       };
       createMutation.mutate(newArticle, {
-        onSuccess: () => {
+        onSuccess: (nArticle) => {
+          queryClient.setQueriesData("articles", (prevData) => {
+            // prevData.concat(nArticle);
+            console.log("article in Editor", prevData);
+          });
           navigate(`/${currentUser.user.username}`);
         },
       });

@@ -6,7 +6,6 @@ const useCommentsQuery = (slug, user) =>
     queryKey: ["comments", slug, user],
     queryFn: () => articleService.getComments(slug, user),
     refetchOnWindowFocus: false,
-    retry: 1,
     enabled: !!slug,
   });
 
